@@ -1,0 +1,19 @@
+{
+  "name": "presentmd",
+  "version": "1.0.0",
+  "description": "",
+  "main": "presentMDparser.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drewelgar021/PresentMD.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/drewelgar021/PresentMD/issues"
+  },
+  "homepage": "https://github.com/drewelgar021/PresentMD#readme"
+}
