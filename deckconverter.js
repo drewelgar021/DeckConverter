@@ -46,8 +46,6 @@ function main() {
      * @returns {boolean} True if the file is valid utf-8, or false otherwise.
      */
     function isUTF8(path) {
-        // Checks for binary garbage by ensuring that all characters are valid
-        // utf-8 (as hinted in assignment spec).
         const decoder = new TextDecoder("utf-8", { fatal: true });
         try {
             decoder.decode(fs.readFileSync(path));
@@ -56,6 +54,7 @@ function main() {
             return false;
         }
     }
+
 
     /**
      * Carries out the entire conversion from PresentMD to Flat ODP, including
@@ -73,7 +72,7 @@ function main() {
         );
 
         // console.log(parsedDeck.blocks[0]);
-        
+
         return 1;
     }
 
@@ -86,6 +85,13 @@ function main() {
         // warning instead of verbose one.
         console.error(PATH_ERROR_MSG);
         return;
+    }
+
+    try {
+        const stats = fs.statSync(outputDir);
+    } catch {
+        // Make output directory if it does not exist.
+        fs.mkdirSync(outputDir);
     }
 
     const stats = fs.statSync(inputPath);
