@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/drewelgar021/PresentMD/issues"
   },
-  "homepage": "https://github.com/drewelgar021/PresentMD#readme"
+  "homepage": "https://github.com/drewelgar021/PresentMD#readme",
+  "dependencies": {
+    "file-type": "^16.5.4",
+    "mime": "^3.0.0"
+  }
 }
