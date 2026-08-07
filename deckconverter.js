@@ -1,3 +1,4 @@
+const childProcess = require("child_process");
 const fs = require("fs");
 
 const USAGE_ERROR_MSG = "Usage: node deckconverter.js <input | input-dir> "
@@ -10,7 +11,10 @@ const NUM_DECKS_MSG   = " decks to convert";
 
 function main() {
 
-    // Check args for validity.
+    // ARG PARSING AND VALIDATION
+    // This is executed before function declarations so that functions can use
+    // parsed arg values.
+
     if (process.argv.length != 4 && process.argv.length != 5) {
         console.error(USAGE_ERROR_MSG);
         return;
@@ -25,23 +29,25 @@ function main() {
     const outputDir = process.argv[3];
     const outputModel = process.argv.length == 5;
 
+
     /**
-     * Carries out all of the conversion from PresentMD to Flat ODP, including
-     * the intermediate JSON model conversion.
-     * This function exists so that conversion can be done multiple times on
-     * all decks in a directory.
+     * Carries out the entire conversion from PresentMD to Flat ODP, including
+     * the intermediate JSON model conversion, for a single file.
      * @param {string} path - The path of the file to process.
      */
     function processFile(path) {
-        console.log(path);
+        const parsedDeck = JSON.parse(
+            childProcess.execSync(`node presentMDparser.js ${path}`).toString()
+        );
     }
+
 
     // statSync() throws an error if file does not exist.
     try {
         const stats = fs.statSync(inputPath);
     } catch (error) {
         // Catch error if path does not exist to provide user-friendly error
-        // warning.
+        // warning instead of verbose one.
         console.error(PATH_ERROR_MSG);
         return;
     }
