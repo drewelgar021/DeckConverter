@@ -1,6 +1,8 @@
 const childProcess = require("child_process");
 const fs = require("fs");
 
+const PARSER_PATH = "./presentMDparser.js";
+
 const USAGE_ERROR_MSG = "Usage: node deckconverter.js <input | input-dir> "
                       + "<output-dir> [--model]";
 const PATH_ERROR_MSG  = "Error: input path does not exist";
@@ -37,8 +39,10 @@ function main() {
      */
     function processFile(path) {
         const parsedDeck = JSON.parse(
-            childProcess.execSync(`node presentMDparser.js ${path}`).toString()
+            childProcess.execFileSync(process.execPath, [PARSER_PATH, path])
         );
+
+        console.log(parsedDeck.blocks[0]);
     }
 
 
@@ -61,7 +65,7 @@ function main() {
     } else if (stats.isDirectory()) {
         const files = fs.readdirSync(inputPath);
         console.log(`${files.length}` + NUM_DECKS_MSG);
-        files.forEach(processFile);
+        files.map((f) => `${inputPath}/${f}`).forEach(processFile);
     }
 }
 
