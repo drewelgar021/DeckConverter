@@ -12,10 +12,11 @@ const USAGE_ERROR_MSG = "Usage: node deckconverter.js <input | input-dir> "
                       + "<output-dir> [--model]";
 const PATH_ERROR_MSG  = "Error: input path does not exist";
 
-const NOT_PLAIN_TEXT_ERROR_MSG = ": not a plaintext file (skipping)";
+const NOT_PLAIN_TEXT_ERROR_MSG = ": not a plaintext file (skipping)\n";
 
-const SINGLE_DECK_MSG = "1 deck to convert";
-const NUM_DECKS_MSG   = " decks to convert";
+const NUM_DECKS_MSG = " decks to convert\n";
+const SUCCESS_MSG   = " decks converted";
+const FAILURE_MSG   = " decks could not be converted\n";
 
 
 function main() {
@@ -72,6 +73,8 @@ function main() {
         );
 
         // console.log(parsedDeck.blocks[0]);
+        
+        return 1;
     }
 
 
@@ -88,13 +91,27 @@ function main() {
     const stats = fs.statSync(inputPath);
 
     if (stats.isFile()) {
-        console.log(SINGLE_DECK_MSG)
-        processFile(inputPath);
+        console.log(`${1}` + NUM_DECKS_MSG)
+        if (processFile(inputPath) == 1) {
+            console.log(`${1}` + SUCCESS_MSG);
+            console.log(`${0}` + FAILURE_MSG);
+        } else {
+            console.log(`${0}` + SUCCESS_MSG);
+            console.log(`${1}` + FAILURE_MSG);
+        }
 
     } else if (stats.isDirectory()) {
         const files = fs.readdirSync(inputPath);
         console.log(`${files.length}` + NUM_DECKS_MSG);
-        files.map((f) => `${inputPath}/${f}`).forEach(processFile);
+        const successes = files.map((file) => `${inputPath}/${file}`)
+            .reduce((acc, file) => {
+                acc += processFile(file);
+                return acc;
+            }, 0);
+
+        console.log(`${successes}` + SUCCESS_MSG);
+        console.log(`${files.length - successes}` + FAILURE_MSG);
+
     }
 }
 
