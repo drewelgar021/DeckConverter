@@ -24,13 +24,15 @@ const SUCCESS_MSG   = " decks converted";
 const FAILURE_MSG   = " decks could not be converted\n";
 
 /**
- * Checks if the provided file path points to a valid utf-8 encoded file.
+ * Checks if the provided file path points to a valid UTF-8 encoded file.
  * 
  * @param {string} path - The path of the file to check.
  * 
- * @returns {boolean} True if the file is valid utf-8, or false otherwise.
+ * @returns {boolean} True if the file is valid UTF-8, or false otherwise.
  */
 function isUTF8(path) {
+    // `fatal` makes the decoder throw an error if it tries to read a non-UTF-8
+    // character, instead of substituting it.
     const decoder = new TextDecoder("utf-8", { fatal: true });
     try {
         decoder.decode(fs.readFileSync(path));
@@ -68,8 +70,6 @@ function takeWhile(predicate, array) {
 }
 
 
-
-
 /**
  * Converts an array of blocks into a deck model.
  * The deck model contains all keys and values from the deck's frontmatter,
@@ -102,11 +102,14 @@ function toModel(blocks) {
  * If the `--model` flag is set in `main()`, then the intermediate JSON
  * model will also be written to a file in the same output directory.
  * 
- * @param {string} path - The path of the file to process.
+ * @param {string} path           - The relative path of the file to process.
+ * @param {string} outputDir      - The relative path of the directory to store
+ *                                  converted decks in.
+ * @param {boolean} [outputModel] - Whether to also write the model to a file.
  * 
  * @returns {int} 1 if the conversion is successful, or 0 otherwise.
  */
-function processFile(path) {
+function processFile(path, outputDir, outputModel = false) {
     if (!isUTF8(path)) {
         console.error(path + NOT_PLAIN_TEXT_ERROR_MSG);
         return 0;
@@ -178,7 +181,7 @@ function main() {
 
     if (stats.isFile()) {
         console.log(`${1}` + NUM_DECKS_MSG)
-        if (processFile(inputPath) == 1) {
+        if (processFile(inputPath, outputDir, outputModel) == 1) {
             console.log(`\n${1}` + SUCCESS_MSG);
             console.log(`${0}` + FAILURE_MSG);
         } else {
@@ -189,11 +192,18 @@ function main() {
     } else if (stats.isDirectory()) {
         const files = fs.readdirSync(inputPath);
         console.log(`${files.length}` + NUM_DECKS_MSG);
-        const successes = files.map((file) => `${inputPath}/${file}`)
-            .reduce((acc, file) => {
-                acc += processFile(file);
-                return acc;
-            }, 0);
+
+        const successes = files.map((file) => {
+            // Append `/` to directory path if not explicitly included.
+            if (inputPath[inputPath.length - 1] == '/') {
+                return `${inputPath}${file}`;
+            }
+            return `${inputPath}/${file}`;
+        })
+        .reduce((acc, file) => {
+            acc += processFile(file, outputDir, outputModel);
+            return acc;
+        }, 0);
 
         console.log(`\n${successes}` + SUCCESS_MSG);
         console.log(`${files.length - successes}` + FAILURE_MSG);
