@@ -181,13 +181,11 @@ function main() {
 
     if (stats.isFile()) {
         console.log(`${1}` + NUM_DECKS_MSG)
-        if (processFile(inputPath, outputDir, outputModel) == 1) {
-            console.log(`\n${1}` + SUCCESS_MSG);
-            console.log(`${0}` + FAILURE_MSG);
-        } else {
-            console.log(`\n${0}` + SUCCESS_MSG);
-            console.log(`${1}` + FAILURE_MSG);
-        }
+        const successes = processFile(inputPath, outputDir, outputModel);
+
+        console.log(`\n${successes}` + SUCCESS_MSG);
+        console.log(`${1 - successes}` + FAILURE_MSG);
+
 
     } else if (stats.isDirectory()) {
         const files = fs.readdirSync(inputPath);
