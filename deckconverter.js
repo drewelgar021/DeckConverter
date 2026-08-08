@@ -23,6 +23,51 @@ const NUM_DECKS_MSG = " decks to convert\n";
 const SUCCESS_MSG   = " decks converted";
 const FAILURE_MSG   = " decks could not be converted\n";
 
+class util {
+    /**
+     * Checks if the provided file path points to a valid utf-8 encoded file.
+     * 
+     * @param {string} path - The path of the file to check.
+     * 
+     * @returns {boolean} True if the file is valid utf-8, or false otherwise.
+     */
+    static isUTF8(path) {
+        const decoder = new TextDecoder("utf-8", { fatal: true });
+        try {
+            decoder.decode(fs.readFileSync(path));
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    /**
+     * Returns an array containing all elements until a certain condition is
+     * met.
+     * 
+     * @param {function} predicate - The predicate which when false, the
+     *                               accumulated elements of the provided array
+     *                               will be returned.
+     *                               The predicate is executed with each array
+     *                               element as a single parameter.
+     * @param {T[]} array          - The array to take elements from.
+     *
+     * @returns {T[]} Array containing elements accumulated from the original
+     *                array while the provided predicate returns true.
+     */
+    static takeWhile(predicate, array) {
+        if (array == undefined || array.length == 0) {
+            return [];
+        }
+
+        if (!predicate(array[0])) {
+            return [];
+        }
+
+         return [array[0]].concat(util.takeWhile(predicate, array.slice(1)));
+    }
+}
+
 function main() {
 
     // ARG PARSING AND VALIDATION
@@ -45,18 +90,20 @@ function main() {
 
 
     /**
-     * Checks if the provided file path points to a valid utf-8 encoded file.
-     * @param {string} path - The path of the file to check.
-     * @returns {boolean} True if the file is valid utf-8, or false otherwise.
+     * Converts an array of blocks into a deck model.
+     * The deck model contains all keys and values from the deck's frontmatter,
+     * and an array of slides.
+     * Separators split the block array into slides.
+     * Slides with "draft" set to true are not parsed.
+     *
+     * @param {Object[]} blocks - Array of JSON blocks parsed from a PresentMD
+     *                            document.
+     * 
+     * @return {Object} A deck model containing keys and values from the
+     *                  frontmatter, and an array of slide models.
      */
-    function isUTF8(path) {
-        const decoder = new TextDecoder("utf-8", { fatal: true });
-        try {
-            decoder.decode(fs.readFileSync(path));
-            return true;
-        } catch {
-            return false;
-        }
+    function toModel(blocks) {
+        return {};
     }
 
 
@@ -68,11 +115,13 @@ function main() {
      * the output directory defined in `main()`.
      * If the `--model` flag is set in `main()`, then the intermediate JSON
      * model will also be written to a file in the same output directory.
+     * 
      * @param {string} path - The path of the file to process.
+     * 
      * @returns {int} 1 if the conversion is successful, or 0 otherwise.
      */
     function processFile(path) {
-        if (!isUTF8(path)) {
+        if (!util.isUTF8(path)) {
             console.error(path + NOT_PLAIN_TEXT_ERROR_MSG);
             return 0;
         }
@@ -98,6 +147,8 @@ function main() {
 
         // TODO: Error when all slides are drafts.
         //       Implement once JSON is parsed to slides.
+
+        const model = toModel(parsedDeck.blocks);
 
         //console.log(parsedDeck.blocks + "\n");
 
