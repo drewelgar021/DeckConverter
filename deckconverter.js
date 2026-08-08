@@ -42,15 +42,15 @@ class util {
     }
 
     /**
-     * Returns an array containing all elements until a certain condition is
-     * met.
+     * Tests each element of an array using a provided predicate, and returns
+     * a new array containing all elements from the original before the first
+     * element that made the predicate evaluate to false.
      * 
-     * @param {function} predicate - The predicate which when false, the
-     *                               accumulated elements of the provided array
-     *                               will be returned.
-     *                               The predicate is executed with each array
-     *                               element as a single parameter.
-     * @param {T[]} array          - The array to take elements from.
+     * @param {(T) => boolean} predicate - When this evaluates to false, an
+     *                                     array containing all previously
+     *                                     accumulated elements from the
+     *                                     original array will be returned.
+     * @param {T[]} array                - The array to take elements from.
      *
      * @returns {T[]} Array containing elements accumulated from the original
      *                array while the provided predicate returns true.
@@ -95,6 +95,7 @@ function main() {
      * and an array of slides.
      * Separators split the block array into slides.
      * Slides with "draft" set to true are not parsed.
+     * This function assumes that the blocks belong to a valid deck.
      *
      * @param {Object[]} blocks - Array of JSON blocks parsed from a PresentMD
      *                            document.
@@ -103,7 +104,11 @@ function main() {
      *                  frontmatter, and an array of slide models.
      */
     function toModel(blocks) {
-        return {};
+        const model = {};
+        const frontmatter = blocks.filter((b) => b.kind == "frontmatter")[0];
+        Object.assign(model, frontmatter.settings);
+
+        return model;
     }
 
 
