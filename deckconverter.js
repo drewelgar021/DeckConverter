@@ -12,12 +12,16 @@ const USAGE_ERROR_MSG = "Usage: node deckconverter.js <input | input-dir> "
                       + "<output-dir> [--model]";
 const PATH_ERROR_MSG  = "Error: input path does not exist";
 
-const NOT_PLAIN_TEXT_ERROR_MSG = ": not a plaintext file (skipping)\n";
+const EMPTY_DECK_ERROR_MSG     = ": file is empty (skipping)";
+const NO_SLIDES_ERROR_MSG      = ": deck contains no slides (skipping)";
+const NO_FRONTMATTER_ERROR_MSG = ": deck contains no frontmatter or "
+                               + "unterminated frontmatter (skipping)";
+const ALL_DRAFTS_ERROR_MSG     = ": all slides in deck are drafts (skipping)";
+const NOT_PLAIN_TEXT_ERROR_MSG = ": not a plaintext file (skipping)";
 
 const NUM_DECKS_MSG = " decks to convert\n";
 const SUCCESS_MSG   = " decks converted";
 const FAILURE_MSG   = " decks could not be converted\n";
-
 
 function main() {
 
@@ -59,6 +63,11 @@ function main() {
     /**
      * Carries out the entire conversion from PresentMD to Flat ODP, including
      * the intermediate JSON model conversion, for a single file.
+     * If a deck fails to convert, then a message will be printed to stderr.
+     * If a deck successfully converts, then a Flat ODP file will be output to
+     * the output directory defined in `main()`.
+     * If the `--model` flag is set in `main()`, then the intermediate JSON
+     * model will also be written to a file in the same output directory.
      * @param {string} path - The path of the file to process.
      * @returns {int} 1 if the conversion is successful, or 0 otherwise.
      */
@@ -71,7 +80,26 @@ function main() {
             childProcess.execFileSync(process.execPath, [PARSER_PATH, path])
         );
 
-        // console.log(parsedDeck.blocks[0]);
+        if (parsedDeck.blocks.length == 0) {
+            console.error(path + EMPTY_DECK_ERROR_MSG);
+            return 0;
+        }
+
+        if (parsedDeck.blocks.length == 1
+            && parsedDeck.blocks[0].kind == "frontmatter") {
+            console.error(path + NO_SLIDES_ERROR_MSG);
+            return 0;
+        }
+
+        if (parsedDeck.blocks[0].kind != "frontmatter") {
+            console.error(path + NO_FRONTMATTER_ERROR_MSG);
+            return 0;
+        }
+
+        // TODO: Error when all slides are drafts.
+        //       Implement once JSON is parsed to slides.
+
+        //console.log(parsedDeck.blocks + "\n");
 
         return 1;
     }
@@ -99,10 +127,10 @@ function main() {
     if (stats.isFile()) {
         console.log(`${1}` + NUM_DECKS_MSG)
         if (processFile(inputPath) == 1) {
-            console.log(`${1}` + SUCCESS_MSG);
+            console.log(`\n${1}` + SUCCESS_MSG);
             console.log(`${0}` + FAILURE_MSG);
         } else {
-            console.log(`${0}` + SUCCESS_MSG);
+            console.log(`\n${0}` + SUCCESS_MSG);
             console.log(`${1}` + FAILURE_MSG);
         }
 
@@ -115,7 +143,7 @@ function main() {
                 return acc;
             }, 0);
 
-        console.log(`${successes}` + SUCCESS_MSG);
+        console.log(`\n${successes}` + SUCCESS_MSG);
         console.log(`${files.length - successes}` + FAILURE_MSG);
 
     }
