@@ -14,8 +14,9 @@ const PATH_ERROR_MSG  = "Error: input path does not exist";
 
 const EMPTY_DECK_ERROR_MSG     = ": file is empty (skipping)";
 const NO_SLIDES_ERROR_MSG      = ": deck contains no slides (skipping)";
-const NO_FRONTMATTER_ERROR_MSG = ": deck contains no frontmatter or "
-                               + "unterminated frontmatter (skipping)";
+const UNTERMINATED_FRONTMATTER_ERROR_MSG = ": deck contains unterminated "
+                                         + "frontmatter (skipping)";
+const NO_FRONTMATTER_ERROR_MSG = ": deck contains no frontmatter (skipping)"
 const ALL_DRAFTS_ERROR_MSG     = ": all slides in deck are drafts (skipping)";
 const NOT_PLAIN_TEXT_ERROR_MSG = ": not a plaintext file (skipping)";
 
@@ -76,7 +77,8 @@ function takeWhile(predicate, array) {
  * and an array of slides.
  * Separators split the block array into slides.
  * Slides with "draft" set to true are not parsed.
- * This function assumes that the blocks belong to a valid deck.
+ * This function assumes that the blocks belong to a valid deck, implying the
+ * assumption that the first block is the frontmatter.
  *
  * @param {Object[]} blocks - Array of JSON blocks parsed from a PresentMD
  *                            document.
@@ -88,6 +90,7 @@ function toModel(blocks) {
     const model = {};
     const frontmatter = blocks.filter((b) => b.kind == "frontmatter")[0];
     Object.assign(model, frontmatter.settings);
+
 
     return model;
 }
@@ -129,7 +132,11 @@ function processFile(path, outputDir, outputModel = false) {
         return 0;
     }
 
-    if (parsedDeck.blocks[0].kind != "frontmatter") {
+    if (parsedDeck.blocks[0].kind == "separator") {
+        console.error(path + UNTERMINATED_FRONTMATTER_ERROR_MSG);
+        return 0;
+
+    } else if (parsedDeck.blocks[0].kind != "frontmatter") {
         console.error(path + NO_FRONTMATTER_ERROR_MSG);
         return 0;
     }
@@ -138,8 +145,6 @@ function processFile(path, outputDir, outputModel = false) {
     //       Implement once JSON is parsed to slides.
 
     const model = toModel(parsedDeck.blocks);
-
-    //console.log(parsedDeck.blocks + "\n");
 
     return 1;
 }
