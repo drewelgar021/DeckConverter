@@ -137,11 +137,7 @@ function toModel(blocks) {
     const frontmatter = blocks[0]; // We assume that this is the frontmatter.
     Object.assign(model, frontmatter.settings);
 
-    slides = getSlides(blocks.slice(1));
-
-    
-
-    console.log(slides);
+    model.slides = getSlides(blocks.slice(1));
 
     return model;
 }
@@ -192,10 +188,12 @@ function processFile(path, outputDir, outputModel = false) {
         return 0;
     }
 
-    // TODO: Error when all slides are drafts.
-    //       Implement once JSON is parsed to slides.
-
     const model = toModel(parsedDeck.blocks);
+
+    if (model.slides.length == 0) {
+        console.error(path + ALL_DRAFTS_ERROR_MSG);
+        return 0;
+    }
 
     return 1;
 }
