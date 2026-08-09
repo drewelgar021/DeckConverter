@@ -34,6 +34,7 @@ const FAILURE_MSG   = " decks could not be converted\n";
 function isUTF8(path) {
     // `fatal` makes the decoder throw an error if it tries to read a non-UTF-8
     // character, instead of substituting it.
+    // There is probably a cleaner way of doing this, but this way is easy.
     const decoder = new TextDecoder("utf-8", { fatal: true });
     try {
         decoder.decode(fs.readFileSync(path));
@@ -70,6 +71,23 @@ function takeWhile(predicate, array) {
         return [array[0]].concat(takeWhile(predicate, array.slice(1)));
 }
 
+/**
+ * Converts an array of blocks into an array of slides.
+ * Blocks separated by blocks of kind "separator" are grouped into slides.
+ * Each slide has a "settings" property, containing every key and value pair
+ * defined in directives, as well as a "content" property containing the slide's
+ * content.
+ *
+ * @param {Object[]} blocks - Array of JSON blocks parsed from a PresentMD
+ *                            document.
+ * @param {Object[]=} acc   - Array of already accumulated slides to append to.
+ *
+ * @return {Object []} An array of slides converted from the provided array of
+ *                     blocks, appended to `acc`.
+ */
+getSlides(blocks, acc = []) {
+    return [];
+}
 
 /**
  * Converts an array of blocks into a deck model.
@@ -88,9 +106,12 @@ function takeWhile(predicate, array) {
  */
 function toModel(blocks) {
     const model = {};
-    const frontmatter = blocks.filter((b) => b.kind == "frontmatter")[0];
+    const frontmatter = blocks[0]; // We assume that this is the frontmatter.
     Object.assign(model, frontmatter.settings);
 
+    const slides = getSlides(blocks.slice(1));
+
+    Object.slides = slides;
 
     return model;
 }
