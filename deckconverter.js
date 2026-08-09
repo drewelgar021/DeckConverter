@@ -85,8 +85,17 @@ function takeWhile(predicate, array) {
  * @return {Object []} An array of slides converted from the provided array of
  *                     blocks, appended to `acc`.
  */
-getSlides(blocks, acc = []) {
-    return [];
+function getSlides(blocks, acc = []) {
+    if (blocks.length == 0) {
+        return [];
+    }
+    const slideBlocks = takeWhile((block) => block.kind != "separator", blocks);
+
+    const slide = {};
+
+    //console.log(slideBlocks);
+    return [slide].concat(getSlides(blocks.slice(slideBlocks.length + 1),
+        acc.concat(slide)));
 }
 
 /**
@@ -109,9 +118,7 @@ function toModel(blocks) {
     const frontmatter = blocks[0]; // We assume that this is the frontmatter.
     Object.assign(model, frontmatter.settings);
 
-    const slides = getSlides(blocks.slice(1));
-
-    Object.slides = slides;
+    Object.slides = getSlides(blocks.slice(1));
 
     return model;
 }
