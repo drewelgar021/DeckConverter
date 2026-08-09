@@ -71,14 +71,26 @@ function takeWhile(predicate, array) {
         return [array[0]].concat(takeWhile(predicate, array.slice(1)));
 }
 
-function getSettings(blocks) {
-    const settings = {};
+/**
+ * Extracts the key-value pairs from directives, in an array of blocks, and
+ * returns an object containing them.
+ * This function does not group directives by slides, so the blocks provided
+ * presumably belong to the same slide.
+ *
+ * @param {Object[]} blocks - The array of blocks to extract directive key-value
+ *                            pairs from.
+ *
+ * @return {Object} An object containing all the extracted key-value pairs.
+ *
+ */
+function getDirectives(blocks) {
+    const directives = {};
 
     blocks.filter((block) => block.kind == "directive")
           .forEach((block) => {
-              settings[block.key] = block.value;
+              directives[block.key] = block.value;
           });
-    return settings;
+    return directives;
 
 }
 
@@ -104,7 +116,7 @@ function getSlides(blocks, acc = []) {
 
     const slide = {};
 
-    const settings = getSettings(slideBlocks);
+    const settings = getDirectives(slideBlocks);
 
     Object.assign(slide, settings);
 
