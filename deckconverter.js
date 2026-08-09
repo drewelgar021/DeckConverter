@@ -71,12 +71,23 @@ function takeWhile(predicate, array) {
         return [array[0]].concat(takeWhile(predicate, array.slice(1)));
 }
 
+function getSettings(blocks) {
+    const settings = {};
+
+    blocks.filter((block) => block.kind == "directive")
+          .forEach((block) => {
+              settings[block.key] = block.value;
+          });
+    return settings;
+
+}
+
 /**
  * Converts an array of blocks into an array of slides.
  * Blocks separated by blocks of kind "separator" are grouped into slides.
- * Each slide has a "settings" property, containing every key and value pair
- * defined in directives, as well as a "content" property containing the slide's
- * content.
+ * Each slide contains properties called settings, which are specified in
+ * directives, and a content property.
+ * Draft slides are excluded from the return.
  *
  * @param {Object[]} blocks - Array of JSON blocks parsed from a PresentMD
  *                            document.
@@ -93,7 +104,15 @@ function getSlides(blocks, acc = []) {
 
     const slide = {};
 
-    //console.log(slideBlocks);
+    const settings = getSettings(slideBlocks);
+
+    Object.assign(slide, settings);
+
+    if (slide.draft == "true") {
+        return getSlides(blocks.slice(slideBlocks.length + 1),
+            acc.concat(slide));
+    }
+
     return [slide].concat(getSlides(blocks.slice(slideBlocks.length + 1),
         acc.concat(slide)));
 }
@@ -118,7 +137,11 @@ function toModel(blocks) {
     const frontmatter = blocks[0]; // We assume that this is the frontmatter.
     Object.assign(model, frontmatter.settings);
 
-    Object.slides = getSlides(blocks.slice(1));
+    slides = getSlides(blocks.slice(1));
+
+    
+
+    console.log(slides);
 
     return model;
 }
