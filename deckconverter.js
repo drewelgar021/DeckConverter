@@ -91,7 +91,10 @@ function getDirectives(blocks) {
               directives[block.key] = block.value;
           });
     return directives;
+}
 
+function getContent(blocks) {
+    return blocks.filter((block) => block.kind != "directive");
 }
 
 /**
@@ -103,7 +106,7 @@ function getDirectives(blocks) {
  *
  * @param {Object[]} blocks - Array of JSON blocks parsed from a PresentMD
  *                            document.
- * @param {Object[]=} acc   - Array of already accumulated slides to append to.
+ * @param {Object[]} [acc]   - Array of already accumulated slides to append to.
  *
  * @return {Object []} An array of slides converted from the provided array of
  *                     blocks, appended to `acc`.
@@ -112,18 +115,19 @@ function getSlides(blocks, acc = []) {
     if (blocks.length == 0) {
         return [];
     }
-    const slideBlocks = takeWhile((block) => block.kind != "separator", blocks);
 
+    const slideBlocks = takeWhile((block) => block.kind != "separator", blocks);
     const slide = {};
 
-    const settings = getDirectives(slideBlocks);
+    Object.assign(slide, getDirectives(slideBlocks));
 
-    Object.assign(slide, settings);
-
+    // Do not append draft slides to accumulator.
     if (slide.draft == "true") {
         return getSlides(blocks.slice(slideBlocks.length + 1),
             acc.concat(slide));
     }
+
+    slide.content = getContent(slideBlocks);
 
     return [slide].concat(getSlides(blocks.slice(slideBlocks.length + 1),
         acc.concat(slide)));
