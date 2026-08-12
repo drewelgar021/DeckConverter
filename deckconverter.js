@@ -24,6 +24,8 @@ const NUM_DECKS_MSG = " decks to convert\n";
 const SUCCESS_MSG   = " decks converted";
 const FAILURE_MSG   = " decks could not be converted\n";
 
+const XML_INFO = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+
 /**
  * Checks if the provided file path points to a valid UTF-8 encoded file.
  * 
@@ -165,6 +167,20 @@ function toModel(blocks) {
 }
 
 /**
+ * Obtains the ODF document-wide style information from a JSON deck model, and
+ * returns an XML ODF representation that can be used directly in a flat ODP
+ * file.
+ * It is assumed that the model is valid.
+ *
+ * @param {String} model - The JSON model being parsed to ODF.
+ *
+ * @return {String} The ODF `office:document-styles` tree parsed from the model.
+ */
+function parseStyles(model) {
+    return "";
+}
+
+/**
  * Converts a JSON deck model into an ODF tree.
  * It is assumed that the deck model is valid.
  *
@@ -173,7 +189,8 @@ function toModel(blocks) {
  * @return {String} An ODF tree representation of the JSON model.
  */
 function toODF(model) {
-    return "test";
+    styles = parseStyles(model);
+    return XML_INFO + styles;
 }
 
 
@@ -277,7 +294,7 @@ function main() {
         fs.mkdirSync(outputDir);
     }
 
-    const stats = fs.stat(inputPath);
+    const stats = fs.statSync(inputPath);
 
     if (stats.isFile()) {
         console.log(`${1}` + NUM_DECKS_MSG)
