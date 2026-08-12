@@ -158,6 +158,18 @@ function toModel(blocks) {
     return model;
 }
 
+/**
+ * Converts a JSON deck model into an ODF tree.
+ * It is assumed that the deck model is valid.
+ *
+ * @param {String} model - The JSON model to convert to ODF.
+ *
+ * @return {String} An ODF tree representation of the JSON model.
+ */
+function toODF(model) {
+    return "test";
+}
+
 
 /**
  * Carries out the entire conversion from PresentMD to Flat ODP, including
@@ -210,10 +222,13 @@ function processFile(path, outputDir, outputModel = false) {
         console.error(path + ALL_DRAFTS_ERROR_MSG);
         return 0;
     }
-    
+
     // Right side of last "/" -> left side of first "."
     const dirTokens = path.split("/");
     const fileName = dirTokens[dirTokens.length - 1].split(".")[0];
+
+    const odf = toODF(model);
+    fs.writeFileSync(`${outputDir}/${fileName}.fodp`, odf);
 
     if (outputModel) {
         fs.writeFileSync(`${outputDir}/${fileName}.model.json`,
