@@ -93,9 +93,19 @@ function getDirectives(blocks) {
     return directives;
 }
 
+
+/**
+ * Extracts blocks from a provided array that relate to slide content.
+ *
+ * @param {Object[]} blocks - The array to extract slide content blocks from.
+ *
+ * @return {Object[]} An array containing only slide content-related blocks
+ *                    derived from the provided array of blocks.
+ */
 function getContent(blocks) {
     return blocks.filter((block) => block.kind != "directive");
 }
+
 
 /**
  * Converts an array of blocks into an array of slides.
@@ -267,7 +277,7 @@ function main() {
         fs.mkdirSync(outputDir);
     }
 
-    const stats = fs.statSync(inputPath);
+    const stats = fs.stat(inputPath);
 
     if (stats.isFile()) {
         console.log(`${1}` + NUM_DECKS_MSG)
@@ -287,8 +297,8 @@ function main() {
                 return `${inputPath}${file}`;
             }
             return `${inputPath}/${file}`;
-        })
-        .reduce((acc, file) => {
+
+        }).reduce((acc, file) => {
             acc += processFile(file, outputDir, outputModel);
             return acc;
         }, 0);
