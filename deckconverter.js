@@ -210,6 +210,15 @@ function processFile(path, outputDir, outputModel = false) {
         console.error(path + ALL_DRAFTS_ERROR_MSG);
         return 0;
     }
+    
+    // Right side of last "/" -> left side of first "."
+    const dirTokens = path.split("/");
+    const fileName = dirTokens[dirTokens.length - 1].split(".")[0];
+
+    if (outputModel) {
+        fs.writeFileSync(`${outputDir}/${fileName}.model.json`,
+            `${JSON.stringify(model, null, 2)}\n`);
+    }
 
     return 1;
 }
