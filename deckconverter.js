@@ -49,7 +49,7 @@ const ROOT_OPEN = "<office:document"
                     + "office:mimetype="
                         + "\"application/vnd.oasis.opendocument.presentation\""
                 + ">";
-const ROOT_CLOSE = "</office:body>"
+const ROOT_CLOSE = "</office:document>"
 
 const STYLES_OPEN = "<office:styles>";
 const STYLES_CLOSE = "</office:styles>";
@@ -218,15 +218,32 @@ function toModel(blocks) {
  * Obtains the ODF document-wide style information from a JSON deck model, and
  * returns an XML ODF representation that can be used directly in a flat ODP
  * file.
+ * Also includes the default style information.
  * It is assumed that the model is valid.
  *
  * @param {String} model - The JSON model being parsed to ODF.
  *
- * @return {String} The ODF `office:document-styles` tree parsed from the model.
+ * @return {String} The ODF `office:document-styles` tree parsed from the model,
+ *                  also including default styling.
  */
 function parseStyles(model) {
     return STYLES_EMPTY + AUTO_STYLES + MASTER_STYLES;
 }
+
+
+/**
+ * Obtains the meta information from a JSON deck model and returns an ODP meta
+ * tree containing this information.
+ *
+ * @param {String} model - The JSON model being parsed to ODF.
+ *
+ * @return {String} The ODF `office:meta` tree parsed from the model.
+ */
+function parseMeta(model) {
+    return META_OPEN + `<dc:title>${model.title}</dc:title>`
+         + `<dc:creator>${model.author}</dc:creator>` + META_CLOSE;
+}
+
 
 /**
  * Converts a JSON deck model into an ODF tree.
@@ -237,8 +254,9 @@ function parseStyles(model) {
  * @return {String} An ODF tree representation of the JSON model.
  */
 function toODF(model) {
-    styles = parseStyles(model);
-    return XML_INFO + ROOT_OPEN + styles + ROOT_CLOSE;
+    const styles = parseStyles(model);
+    const meta = parseMeta(model);
+    return XML_INFO + ROOT_OPEN + styles + meta + ROOT_CLOSE;
 }
 
 
