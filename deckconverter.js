@@ -117,9 +117,7 @@ function getSlides(blocks, acc = []) {
     }
 
     const slideBlocks = takeWhile((block) => block.kind != "separator", blocks);
-    const slide = {};
-
-    Object.assign(slide, getDirectives(slideBlocks));
+    const slide = {...getDirectives(slideBlocks)};
 
     // Do not append draft slides to accumulator.
     if (slide.draft == "true") {
@@ -149,10 +147,8 @@ function getSlides(blocks, acc = []) {
  *                  frontmatter, and an array of slide models.
  */
 function toModel(blocks) {
-    const model = {};
     const frontmatter = blocks[0]; // We assume that this is the frontmatter.
-    Object.assign(model, frontmatter.settings);
-
+    const model = {...frontmatter.settings};
     model.slides = getSlides(blocks.slice(1));
 
     return model;
