@@ -26,52 +26,47 @@ const FAILURE_MSG   = " decks could not be converted\n";
 
 const XML_INFO = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 
-const ROOT_OPEN = "<office:document"
-                    + "xmlns:office="
-                        + "\"urn:oasis:names:tc:opendocument:xmlns:office:1.0\""
-                    + "xmlns:style="
-                        + "\"urn:oasis:names:tc:opendocument:xmlns:style:1.0\""
-                    + "xmlns:text="
-                        + "\"urn:oasis:names:tc:opendocument:xmlns:text:1.0\""
-                    + "xmlns:draw="
-                        + "\"urn:oasis:names:tc:opendocument:xmlns:drawing:"
-                            + "1.0\""
-                    + "xmlns:presentation="
-                        + "\"urn:oasis:names:tc:opendocument:xmlns:"
-                            + "presentation:1.0\""
-                    + "xmlns:fo="
-                        + "\"urn:oasis:names:tc:opendocument:xmlns:"
-                            + "xsl-fo-compatible:1.0\""
-                    + "xmlns:svg="
-                        + "\"urn:oasis:names:tc:opendocument:"
-                            + "xmlns:svg-compatible:1.0\""
-                    + "office:version=\"1.2\""
-                    + "office:mimetype="
-                        + "\"application/vnd.oasis.opendocument.presentation\""
-                + ">";
-const ROOT_CLOSE = "</office:document>"
+const ROOT_OPEN =
+`<office:document
+    xmlns:office=\"urn:oasis:names:tc:opendocument:xmlns:office:1.0\"
+    xmlns:style=\"urn:oasis:names:tc:opendocument:xmlns:style:1.0\"
+    xmlns:text=\"urn:oasis:names:tc:opendocument:xmlns:text:1.0\"
+    xmlns:draw=\"urn:oasis:names:tc:opendocument:xmlns:drawing: "1.0\"
+    xmlns:presentation=
+        \"urn:oasis:names:tc:opendocument:xmlns:presentation:1.0\"
+    xmlns:fo=\"urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0\"
+    xmlns:svg=\"urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0\"
+    office:version=\"1.2\"
+    office:mimetype=\"application/vnd.oasis.opendocument.presentation\">
+`;
+const ROOT_CLOSE = "</office:document>\n"
 
-const STYLES_OPEN = "<office:styles>";
-const STYLES_CLOSE = "</office:styles>";
-const STYLES_EMPTY = "<office:styles/>";
-const AUTO_STYLES = "<office: automatic-styles>"
-                      + "<style:page-layout style:name=\"PM1\">"
-                          + "<style:page-layout-properties"
-                              + "fo:page-width=\"25.4cm\""
-                              + "fo:page-height=\"14.29cm\""
-                              + "style:print-orientation=\"landscape\""
-                          + "/>"
-                      + "</style:page-layout>"
-                   + "</office:automatic-styles>";
-const MASTER_STYLES = "<office:master-styles>"
-                        + "<style:master-page style:name=\"Default\" "
-                            + "style:page-layout-name=\"PM1\"/>"
-                    + "</office:master-styles>";
+const STYLES_OPEN = "<office:styles>\n";
+const STYLES_CLOSE = "</office:styles>\n";
+const STYLES_EMPTY = "<office:styles/>\n";
+const AUTO_STYLES =
+`<office: automatic-styles>
+    <style:page-layout style:name=\"PM1\">
+    <style:page-layout-properties
+        fo:page-width=\"25.4cm\"
+        fo:page-height=\"14.29cm\"
+        style:print-orientation=\"landscape\"/>
+    </style:page-layout>
+</office:automatic-styles>
+`;
+const MASTER_STYLES =
+`<office:master-styles>
+    <style:master-page style:name=\"Default\" style:page-layout-name=\"PM1\"/>
+</office:master-styles>
+`;
 
-const BODY_OPEN = "<office:body><office:presentation>";
-const BODY_CLOSE = "</office:presentation></office:body>";
+const BODY_OPEN = "<office:body><office:presentation>\n";
+const BODY_CLOSE = "</office:presentation></office:body>\n";
 
-const META_OPEN = "<office:meta><meta:generator>deckconverter</meta:generator>";
+const META_OPEN = 
+`<office:meta>
+    <meta:generator>deckconverter</meta:generator>
+`;
 const META_CLOSE = "</office:meta>";
 
 /**
@@ -120,6 +115,7 @@ function takeWhile(predicate, array) {
 
         return [array[0]].concat(takeWhile(predicate, array.slice(1)));
 }
+
 
 /**
  * Extracts the key-value pairs from directives, in an array of blocks, and
