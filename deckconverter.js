@@ -234,8 +234,16 @@ function parseStyles(model) {
  * @return {String} The ODF `office:meta` tree parsed from the model.
  */
 function parseMeta(model) {
-    return META_OPEN + `<dc:title>${model.title}</dc:title>`
-         + `<dc:creator>${model.author}</dc:creator>\n` + META_CLOSE;
+    const undefinedToBlank = (str) => {
+        if (str == undefined) return "";
+        return str;
+    }
+
+    const title = undefinedToBlank(model.title);
+    const author = undefinedToBlank(model.author);
+
+    return META_OPEN + `<dc:title>${title}</dc:title>`
+         + `<dc:creator>${author}</dc:creator>\n` + META_CLOSE;
 }
 
 
