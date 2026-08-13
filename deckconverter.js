@@ -64,6 +64,8 @@ const MASTER_STYLES =
 
 const BODY_OPEN = "<office:body><office:presentation>\n";
 const BODY_CLOSE = "</office:presentation></office:body>\n";
+const SLIDE_OPEN = "<draw:page>\n"
+const SLIDE_CLOSE = "</draw:page>\n"
 
 const META_OPEN = 
 `<office:meta>
@@ -219,7 +221,7 @@ function toModel(blocks) {
  * Also includes the default style information.
  * It is assumed that the model is valid.
  *
- * @param {String} model - The JSON model being parsed to ODF.
+ * @param {Object} model - The JSON model being parsed to ODF.
  *
  * @return {String} The ODF `office:automatic-styles`, `office:master-styles`,
  *                  and (empty) `office:styles` trees parsed from the model.
@@ -240,6 +242,39 @@ const SAMPLE_PAGE =
 </draw:page>
 `
 
+
+/**
+ * Parses a JSON block to ODF slide content.
+ * This function is called recursively on each element of `block.runs`, until an
+ * element with a `value` key is found, at which point it will return the text.
+ * Each return will be prepended and appended with the appropriate opening and
+ * closing XML tags, which are determined by the `block.type`.
+ *
+ * @param {Object} block - A single block to parse, which may recursively
+ *                         contain more blocks in its `runs` array.
+ * 
+ * @return {String} The parsed ODF slide content.
+ */
+function parseBlock(block) {
+    return "";
+}
+
+
+/**
+ * Parses a JSON slide structure to an ODF page.
+ * It is assumed that the slide is valid.
+ *
+ * @param {Object} slide - The JSON slide being parsed to ODF.
+ * 
+ * @return {String} The single ODF slide parsed from the provided slide
+ *                  structure.
+ */
+function parseSlide(slide) {
+    const parsedBlocks = slide.content.map(parseBlock);
+
+    return SLIDE_OPEN + parsedBlocks.join("") + SLIDE_CLOSE;
+}
+
 /**
  * Obtains the document body for an ODF presentation from a JSON deck model.
  * It is assumed that the model is valid.
@@ -249,7 +284,8 @@ const SAMPLE_PAGE =
  * @return {String} The ODF `office:body` tree parsed from the model.
  */
 function parseBody(model) {
-    return BODY_OPEN + SAMPLE_PAGE + BODY_CLOSE;
+    const parsedSlides = model.slides.map(parseSlide);
+    return BODY_OPEN + parsedSlides.join("") + BODY_CLOSE;
 }
 
 
@@ -257,7 +293,7 @@ function parseBody(model) {
  * Obtains the meta information from a JSON deck model and returns an ODP meta
  * tree containing this information.
  *
- * @param {String} model - The JSON model being parsed to ODF.
+ * @param {Object} model - The JSON model being parsed to ODF.
  *
  * @return {String} The ODF `office:meta` tree parsed from the model.
  */
@@ -279,7 +315,7 @@ function parseMeta(model) {
  * Converts a JSON deck model into an ODF tree.
  * It is assumed that the deck model is valid.
  *
- * @param {String} model - The JSON model to convert to ODF.
+ * @param {Object} model - The JSON model to convert to ODF.
  *
  * @return {String} An ODF tree representation of the JSON model.
  */
