@@ -50,6 +50,10 @@ const AUTO_STYLES_OPEN =
         fo:page-height=\"14.29cm\"
         style:print-orientation=\"landscape\"/>
     </style:page-layout>
+    <style:style style:name=\"pr-frame\" style:family=\"graphic\">
+        <style:graphic-properties draw:fill="none" draw:stroke="none"
+            draw:auto-grow-height="true" fo:padding="0cm"/>
+    </style:style>
 `;
 const AUTO_STYLES_CLOSE = "</office:automatic-styles>\n"
 const MASTER_STYLES =
@@ -225,6 +229,17 @@ function parseStyles(model) {
 }
 
 
+const SAMPLE_PAGE =
+`<draw:page draw:name="test" draw:master-page-name="Default">
+    <draw:frame draw:style-name="pr-frame" svg:x="1.4cm" svg:y="0.9cm"
+        svg:width="22.6cm" svg:height="2.5cm">
+        <draw:text-box>
+            <text:p text:style-name="p-title">Test</text:p>
+        </draw:text-box>
+    </draw:frame>
+</draw:page>
+`
+
 /**
  * Obtains the document body for an ODF presentation from a JSON deck model.
  * It is assumed that the model is valid.
@@ -234,7 +249,7 @@ function parseStyles(model) {
  * @return {String} The ODF `office:body` tree parsed from the model.
  */
 function parseBody(model) {
-    return BODY_OPEN + BODY_CLOSE;
+    return BODY_OPEN + SAMPLE_PAGE + BODY_CLOSE;
 }
 
 
