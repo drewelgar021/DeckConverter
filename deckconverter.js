@@ -70,7 +70,7 @@ const META_CLOSE = "</office:meta>\n";
 /**
  * Checks if the provided file path points to a valid UTF-8 encoded file.
  * 
- * @param {string} path - The path of the file to check.
+ * @param {String} path - The path of the file to check.
  * 
  * @returns {boolean} True if the file is valid UTF-8, or false otherwise.
  */
@@ -271,8 +271,8 @@ function toODF(model) {
  * If the `--model` flag is set in `main()`, then the intermediate JSON
  * model will also be written to a file in the same output directory.
  * 
- * @param {string} path           - The relative path of the file to process.
- * @param {string} outputDir      - The relative path of the directory to store
+ * @param {String} path           - The relative path of the file to process.
+ * @param {String} outputDir      - The relative path of the directory to store
  *                                  converted decks in.
  * @param {boolean} [outputModel] - Whether to also write the model to a file.
  * 
