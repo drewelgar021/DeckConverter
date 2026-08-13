@@ -41,19 +41,17 @@ const ROOT_OPEN =
 `;
 const ROOT_CLOSE = "</office:document>\n"
 
-const STYLES_OPEN = "<office:styles>\n";
-const STYLES_CLOSE = "</office:styles>\n";
-const STYLES_EMPTY = "<office:styles/>\n";
-const AUTO_STYLES =
-`<office: automatic-styles>
+const STYLES = "<office:styles/>\n";
+const AUTO_STYLES_OPEN =
+`<office:automatic-styles>
     <style:page-layout style:name=\"PM1\">
     <style:page-layout-properties
         fo:page-width=\"25.4cm\"
         fo:page-height=\"14.29cm\"
         style:print-orientation=\"landscape\"/>
     </style:page-layout>
-</office:automatic-styles>
 `;
+const AUTO_STYLES_CLOSE = "</office:automatic-styles>\n"
 const MASTER_STYLES =
 `<office:master-styles>
     <style:master-page style:name=\"Default\" style:page-layout-name=\"PM1\"/>
@@ -67,7 +65,7 @@ const META_OPEN =
 `<office:meta>
     <meta:generator>deckconverter</meta:generator>
 `;
-const META_CLOSE = "</office:meta>";
+const META_CLOSE = "</office:meta>\n";
 
 /**
  * Checks if the provided file path points to a valid UTF-8 encoded file.
@@ -223,7 +221,7 @@ function toModel(blocks) {
  *                  also including default styling.
  */
 function parseStyles(model) {
-    return STYLES_EMPTY + AUTO_STYLES + MASTER_STYLES;
+    return STYLES + AUTO_STYLES_OPEN + AUTO_STYLES_CLOSE + MASTER_STYLES;
 }
 
 
@@ -237,7 +235,7 @@ function parseStyles(model) {
  */
 function parseMeta(model) {
     return META_OPEN + `<dc:title>${model.title}</dc:title>`
-         + `<dc:creator>${model.author}</dc:creator>` + META_CLOSE;
+         + `<dc:creator>${model.author}</dc:creator>\n` + META_CLOSE;
 }
 
 
