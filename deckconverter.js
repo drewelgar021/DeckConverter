@@ -217,11 +217,24 @@ function toModel(blocks) {
  *
  * @param {String} model - The JSON model being parsed to ODF.
  *
- * @return {String} The ODF `office:document-styles` tree parsed from the model,
- *                  also including default styling.
+ * @return {String} The ODF `office:automatic-styles`, `office:master-styles`,
+ *                  and (empty) `office:styles` trees parsed from the model.
  */
 function parseStyles(model) {
     return STYLES + AUTO_STYLES_OPEN + AUTO_STYLES_CLOSE + MASTER_STYLES;
+}
+
+
+/**
+ * Obtains the document body for an ODF presentation from a JSON deck model.
+ * It is assumed that the model is valid.
+ *
+ * @param {String} model - The JSON model being parsed to ODF.
+ *
+ * @return {String} The ODF `office:body` tree parsed from the model.
+ */
+function parseBody(model) {
+    return BODY_OPEN + BODY_CLOSE;
 }
 
 
@@ -257,8 +270,9 @@ function parseMeta(model) {
  */
 function toODF(model) {
     const styles = parseStyles(model);
+    const body = parseBody(model);
     const meta = parseMeta(model);
-    return XML_INFO + ROOT_OPEN + styles + meta + ROOT_CLOSE;
+    return XML_INFO + ROOT_OPEN + styles + body + meta + ROOT_CLOSE;
 }
 
 
