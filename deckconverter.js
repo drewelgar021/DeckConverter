@@ -275,6 +275,13 @@ function parseBlock(block) {
                 + close;
         }
     }
+    if (block.kind == "paragraph") {
+        const open = "                <text:p text:style-name=\"p-body\">";
+        const close = "</text:p>\n"
+
+        return open + block.runs.map(parseBlock).join("") + close;
+    }
+
     // Unrecognised elements get ignored.
     return "";
 }
