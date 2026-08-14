@@ -64,8 +64,7 @@ const MASTER_STYLES =
 
 const BODY_OPEN = "<office:body><office:presentation>\n";
 const BODY_CLOSE = "</office:presentation></office:body>\n";
-const SLIDE_OPEN = "<draw:page>\n"
-const SLIDE_CLOSE = "</draw:page>\n"
+const SLIDE_CLOSE = "   </draw:page>\n"
 
 const META_OPEN = 
 `<office:meta>
@@ -119,6 +118,9 @@ function takeWhile(predicate, array) {
 
         return [array[0]].concat(takeWhile(predicate, array.slice(1)));
 }
+
+
+const toKebabCase = (str) => str.toLowerCase().replaceAll(' ', '-');
 
 
 /**
@@ -237,7 +239,7 @@ const SAMPLE_PAGE =
         svg:width="22.6cm" svg:height="2.5cm">
         <draw:text-box>
             <text:p text:style-name="p-title">Test</text:p>
-        </draw:text-box>
+        </draw:-box>
     </draw:frame>
 </draw:page>
 `
@@ -252,10 +254,37 @@ const SAMPLE_PAGE =
  *
  * @param {Object} block - A single block to parse, which may recursively
  *                         contain more blocks in its `runs` array.
+ * @param {int} [yOffet] - The y position offset to place the element on the
+ *                         slide, to allow stacking with previously parsed
+ *                         elements.
  * 
  * @return {String} The parsed ODF slide content.
  */
-function parseBlock(block) {
+function parseBlock(block, yOffset = 0.9) {
+    if (block.type == "text") {
+        // Minimum structure is a block of text.
+        return block.value;
+    }
+    // I wish I could use constants but need to inject yOffset >:(
+    // This looks like shit
+    if (block.kind == "heading") {
+        if (block.level == 1 || block.level == 2) {
+            const open = 
+`       <draw:frame presentation:class=\"title\" draw:style-name=\"pr-frame\"
+                svg:x=\"1.4cm\" svg:y=\"${yOffset}cm\"
+                svg:width=\"22.6cm\" svg:height=\"2.5cm\">
+            <draw:text-box>
+                <text:p text:style-name=\"p-title\">`
+            const close = 
+`</text:p>
+            </draw:text-box>
+        </draw:frame>\n`
+
+            return open
+                + block.runs.map((run) => parseBlock(run, yOffset)).join("")
+                + close;
+        }
+    }
     return "";
 }
 
@@ -265,14 +294,26 @@ function parseBlock(block) {
  * It is assumed that the slide is valid.
  *
  * @param {Object} slide - The JSON slide being parsed to ODF.
+ * @param {int} slideNo  - Used in the fallback slide name where no title is
+ *                         provided.
  * 
  * @return {String} The single ODF slide parsed from the provided slide
  *                  structure.
  */
-function parseSlide(slide) {
-    const parsedBlocks = slide.content.map(parseBlock);
+function parseSlide(slide, slideNo) {
+    // Take the first heading of level 1 or 2 as the title.34
+    const title = slide.content
+        .filter((block) => block.kind == "heading"
+            && (block.level == 1 || block.level == 2))[0]
+        .runs.filter((run) => run.type == "text")[0].value;
+    const parsedBlocks = slide.content.map((block) => parseBlock(block));
 
-    return SLIDE_OPEN + parsedBlocks.join("") + SLIDE_CLOSE;
+    const slideName = title ? toKebabCase(title) : `$slide${slideNo}`;
+
+    const open =
+`   <draw:page draw:name=\"${slideName}\" draw:master-page-name=\"Default\">\n`;
+
+    return open + parsedBlocks.join("") + SLIDE_CLOSE;
 }
 
 /**
@@ -284,7 +325,8 @@ function parseSlide(slide) {
  * @return {String} The ODF `office:body` tree parsed from the model.
  */
 function parseBody(model) {
-    const parsedSlides = model.slides.map(parseSlide);
+    const parsedSlides = model.slides
+        .map((slide, index) => parseSlide(slide, index));
     return BODY_OPEN + parsedSlides.join("") + BODY_CLOSE;
 }
 
