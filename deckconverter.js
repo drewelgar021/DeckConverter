@@ -51,8 +51,11 @@ const AUTO_STYLES_OPEN =
         style:print-orientation=\"landscape\"/>
     </style:page-layout>
     <style:style style:name=\"pr-frame\" style:family=\"graphic\">
-        <style:graphic-properties draw:fill="none" draw:stroke="none"
-            draw:auto-grow-height="true" fo:padding="0cm"/>
+        <style:graphic-properties draw:fill=\"none\" draw:stroke=\"none\"
+            draw:auto-grow-height=\"true\" fo:padding=\"0cm\"/>
+    </style:style>
+    <style:style style:name=\"p-subhead\" style:family=\"paragraph\">
+        <style:text-properties fo:font-size=\"22pt\" fo:font-weight=\"bold\"/>
     </style:style>
 `;
 const AUTO_STYLES_CLOSE = "</office:automatic-styles>\n"
@@ -242,38 +245,74 @@ function parseStyles(model) {
  *
  * @param {Object} block - A single block to parse, which may recursively
  *                         contain more blocks in its `runs` array.
- * @param {int} [yOffet] - The y position offset to place the element on the
- *                         slide, to allow stacking with previously parsed
- *                         elements.
  * 
  * @return {String} The parsed ODF slide content.
  */
-function parseBlock(block, yOffset = 0.9) {
+function parseBlock(block) {
     if (block.type == "text") {
         // Minimum structure is a block of text.
         return block.value;
     }
-    // I wish I could use constants but need to inject yOffset >:(
-    // This looks like shit
     if (block.kind == "heading") {
         if (block.level == 1 || block.level == 2) {
             const open = 
-`       <draw:frame presentation:class=\"title\" draw:style-name=\"pr-frame\"
-                svg:x=\"1.4cm\" svg:y=\"${yOffset}cm\"
-                svg:width=\"22.6cm\" svg:height=\"2.5cm\">
-            <draw:text-box>
+`            <draw:text-box>
                 <text:p text:style-name=\"p-title\">`
             const close = 
 `</text:p>
-            </draw:text-box>
-        </draw:frame>\n`
-
+            </draw:text-box>\n`
             return open
-                + block.runs.map((run) => parseBlock(run, yOffset)).join("")
+                + block.runs.map(parseBlock).join("")
+                + close;
+        }
+        if (block.level == 3) {
+            const open = "            <text:p text:style-name=\"p-subhead\">";
+            const close = "</text:p>\n";
+            return open
+                + block.runs.map(parseBlock).join("")
                 + close;
         }
     }
+    // Invalid elements get ignored.
     return "";
+}
+
+function parseTitle(slide) {
+    const open = 
+`        <draw:frame presentation:class=\"title\" draw:style-name=\"pr-frame\"
+                svg:x=\"1.4cm\" svg:y=\"0.9cm\"
+                svg:width=\"22.6cm\" svg:height=\"2.5cm\">\n`
+
+    const close = `        </draw:frame>\n`;
+
+    // I am going to assume that there is one title and there will be no
+    // problem.
+    const titleBlock = slide.content
+        .filter((block) => block.kind == "heading"
+            && (block.level == "1" || block.level == "2"))[0];
+
+    if (titleBlock) {
+        return open + parseBlock(titleBlock) + close;
+    }
+
+    return "";
+
+}
+
+
+function parseContent(slide) {
+    const open = 
+`        <draw:frame presentation:class=\"outline\" draw:style-name=\"pr-frame\"
+                svg:x=\"1.4cm\" svg:y=\"3.9cm\"
+                svg:width=\"22.6cm\" svg:height=\"9.2cm\">
+            <draw:text-box>\n`;
+    const close = 
+`            </draw:text-box>
+        </draw:frame>\n`
+    const content = slide.content.filter((block) => block.kind != "heading")
+            .map(parseBlock).join("");
+
+    return open + content + close;
 }
 
 
@@ -289,19 +328,21 @@ function parseBlock(block, yOffset = 0.9) {
  *                  structure.
  */
 function parseSlide(slide, slideNo) {
-    // Take the first heading of level 1 or 2 as the title.34
+    // Take the first heading of level 1 or 2 as the title.
     const title = slide.content
         .filter((block) => block.kind == "heading"
             && (block.level == 1 || block.level == 2))[0]
         .runs.filter((run) => run.type == "text")[0].value;
-    const parsedBlocks = slide.content.map((block) => parseBlock(block));
+
+    const titleFrame = parseTitle(slide);
+    const contentFrame = parseContent(slide);
 
     const slideName = title ? toKebabCase(title) : `$slide${slideNo}`;
 
     const open =
 `   <draw:page draw:name=\"${slideName}\" draw:master-page-name=\"Default\">\n`;
 
-    return open + parsedBlocks.join("") + SLIDE_CLOSE;
+    return open + titleFrame + contentFrame + SLIDE_CLOSE;
 }
 
 /**
