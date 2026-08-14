@@ -45,14 +45,17 @@ const STYLES = "<office:styles/>\n";
 const AUTO_STYLES_OPEN =
 `<office:automatic-styles>
     <style:page-layout style:name=\"PM1\">
-    <style:page-layout-properties
-        fo:page-width=\"25.4cm\"
-        fo:page-height=\"14.29cm\"
-        style:print-orientation=\"landscape\"/>
+        <style:page-layout-properties
+                fo:page-width=\"25.4cm\"
+                fo:page-height=\"14.29cm\"
+            style:print-orientation=\"landscape\"/>
     </style:page-layout>
     <style:style style:name=\"pr-frame\" style:family=\"graphic\">
         <style:graphic-properties draw:fill=\"none\" draw:stroke=\"none\"
             draw:auto-grow-height=\"true\" fo:padding=\"0cm\"/>
+    </style:style>
+    <style:style style:name=\"p-title\" style:family=\"paragraph\">
+        <style:text-properties fo:font-size=\"40pt\" fo:font-weight=\"bold\"/>
     </style:style>
     <style:style style:name=\"p-subhead\" style:family=\"paragraph\">
         <style:text-properties fo:font-size=\"22pt\" fo:font-weight=\"bold\"/>
@@ -196,6 +199,7 @@ function getSlides(blocks, acc = []) {
         acc.concat(slide)));
 }
 
+
 /**
  * Converts an array of blocks into a deck model.
  * The deck model contains all keys and values from the deck's frontmatter,
@@ -218,6 +222,7 @@ function toModel(blocks) {
 
     return model;
 }
+
 
 /**
  * Obtains the ODF document-wide style information from a JSON deck model, and
@@ -255,35 +260,44 @@ function parseBlock(block) {
     }
     if (block.kind == "heading") {
         if (block.level == 1 || block.level == 2) {
-            const open = 
-`            <draw:text-box>
-                <text:p text:style-name=\"p-title\">`
-            const close = 
-`</text:p>
-            </draw:text-box>\n`
+            const open = "                <text:p text:style-name=\"p-title\">"
+            const close = "</text:p>\n"
             return open
                 + block.runs.map(parseBlock).join("")
                 + close;
         }
         if (block.level == 3) {
-            const open = "            <text:p text:style-name=\"p-subhead\">";
+            const open =
+                "                <text:p text:style-name=\"p-subhead\">";
             const close = "</text:p>\n";
             return open
                 + block.runs.map(parseBlock).join("")
                 + close;
         }
     }
-    // Invalid elements get ignored.
+    // Unrecognised elements get ignored.
     return "";
 }
 
+
+/**
+ * Obtains the ODF title frame from a JSON slide structure.
+ * The title is the first level 1 or 2 heading in the slide.
+ *
+ * @param {Object} slide - The slide being parsed to ODF.
+ *
+ * @param {String} The ODF title frame from the slide provided.
+ */
 function parseTitle(slide) {
     const open = 
 `        <draw:frame presentation:class=\"title\" draw:style-name=\"pr-frame\"
                 svg:x=\"1.4cm\" svg:y=\"0.9cm\"
-                svg:width=\"22.6cm\" svg:height=\"2.5cm\">\n`
+                svg:width=\"22.6cm\" svg:height=\"2.5cm\">
+            <draw:text-box>\n`
 
-    const close = `        </draw:frame>\n`;
+    const close =
+`            </draw:text-box>
+        </draw:frame>\n`;
 
     // I am going to assume that there is one title and there will be no
     // problem.
@@ -300,6 +314,13 @@ function parseTitle(slide) {
 }
 
 
+/**
+ * Obtains the ODF content frame from a JSON slide structure.
+ *
+ * @param slide {Object} - The slide being parsed to ODF.
+ *
+ * @return {String} The ODF content frame from the slide provided.
+ */
 function parseContent(slide) {
     const open = 
 `        <draw:frame presentation:class=\"outline\" draw:style-name=\"pr-frame\"
@@ -308,9 +329,11 @@ function parseContent(slide) {
             <draw:text-box>\n`;
     const close = 
 `            </draw:text-box>
-        </draw:frame>\n`
-    const content = slide.content.filter((block) => block.kind != "heading")
-            .map(parseBlock).join("");
+        </draw:frame>\n`;
+    const content = slide.content
+        .filter((block) => !(block.kind == "heading"
+                && (block.level == 1 || block.level == 2))) 
+        .map(parseBlock).join("");
 
     return open + content + close;
 }
@@ -344,6 +367,7 @@ function parseSlide(slide, slideNo) {
 
     return open + titleFrame + contentFrame + SLIDE_CLOSE;
 }
+
 
 /**
  * Obtains the document body for an ODF presentation from a JSON deck model.
