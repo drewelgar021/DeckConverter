@@ -233,18 +233,6 @@ function parseStyles(model) {
 }
 
 
-const SAMPLE_PAGE =
-`<draw:page draw:name="test" draw:master-page-name="Default">
-    <draw:frame draw:style-name="pr-frame" svg:x="1.4cm" svg:y="0.9cm"
-        svg:width="22.6cm" svg:height="2.5cm">
-        <draw:text-box>
-            <text:p text:style-name="p-title">Test</text:p>
-        </draw:-box>
-    </draw:frame>
-</draw:page>
-`
-
-
 /**
  * Parses a JSON block to ODF slide content.
  * This function is called recursively on each element of `block.runs`, until an
