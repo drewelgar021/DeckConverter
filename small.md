@@ -13,7 +13,7 @@ By Drewza
 
 ## Slide 1
 
-Content *bold*
+Content **bold** _italic_ ~~struck~~
 
 ---
 

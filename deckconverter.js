@@ -60,6 +60,15 @@ const AUTO_STYLES_OPEN =
     <style:style style:name=\"p-subhead\" style:family=\"paragraph\">
         <style:text-properties fo:font-size=\"22pt\" fo:font-weight=\"bold\"/>
     </style:style>
+    <style:style style:name=\"t-bold\" style:family=\"text\">
+        <style:text-properties fo:font-weight=\"bold\"/>
+    </style:style>
+    <style:style style:name=\"t-italic\" style:family=\"text\">
+        <style:text-properties fo:font-style=\"italic\"/>
+    </style:style>
+    <style:style style:name=\"t-strike\" style:family=\"text\">
+        <style:text-properties style:text-line-through-style=\"solid\"/>
+    </style:style>
 `;
 const AUTO_STYLES_CLOSE = "</office:automatic-styles>\n"
 const MASTER_STYLES =
@@ -282,7 +291,25 @@ function parseBlock(block) {
         return open + block.runs.map(parseBlock).join("") + close;
     }
 
-    // Unrecognised elements get ignored.
+    if (block.type == "strong") {
+        const open = "<text:span text:style-name=\"t-bold\">";
+        const close = "</text:span>";
+        return open + block.runs.map(parseBlock).join("") + close;
+    }
+    
+    if (block.type == "em") {
+        const open = "<text:span text:style-name=\"t-italic\">";
+        const close = "</text:span>";
+        return open + block.runs.map(parseBlock).join("") + close;
+    }
+    
+    if (block.type == "strike") {
+        const open = "<text:span text:style-name=\"t-strike\">";
+        const close = "</text:span>";
+        return open + block.runs.map(parseBlock).join("") + close;
+    }
+
+    // TODO: Unsupported elements message.
     return "";
 }
 
