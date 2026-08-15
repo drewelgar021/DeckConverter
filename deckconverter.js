@@ -69,7 +69,27 @@ const AUTO_STYLES_OPEN =
     <style:style style:name=\"t-strike\" style:family=\"text\">
         <style:text-properties style:text-line-through-style=\"solid\"/>
     </style:style>
-`;
+
+    <text:list-style style:name=\"l-bullets\">
+        <text:list-level-style-bullet text:level=\"1\" text:bullet-char=\"•\">
+            <text:list-level-properties text:space-before=\"0cm\"
+                    text:min-label-width=\"0.7cm\"/>
+        </text:list-level-style-bullet>
+
+        <text:list-level-style-bullet text:level=\"2\" text:bullet-char=\"-\">
+            <style:list-level-properties text:space-before=\"0.9cm\"
+                    text:min-label-width=\"0.7cm\"/>
+        </text:list-level-style-bullet>
+    </text:list-style>
+
+    <text:list-style style:name=\"l-numbered\">
+        <text:list-level-style-number text:level=\"1\" style:num-format=\"1\"
+                style:num-suffix=\".\">
+            <style:list-level-properties text:space-before=\"0cm\"
+                    text:min-label-width=\"0.7cm\"/>
+        </text:list-level-style-number>
+    </text:list-style>\n`;
+
 const AUTO_STYLES_CLOSE = "</office:automatic-styles>\n"
 const MASTER_STYLES =
 `<office:master-styles>
@@ -291,18 +311,35 @@ function parseBlock(block) {
         return open + block.runs.map(parseBlock).join("") + close;
     }
 
+    if (block.kind == "list") {
+        const open = "            <text:list text:style-name=\"l-bullets\">\n";
+        const close = "        </text:list>\n";
+        
+        const items = block.items.map((item) => {
+            const open
+                = "                <text:list-item><text:p text:style-name=\"p-body\">\n";
+            const close = "                </text:p></text:list-item>\n";
+            return open
+                + item.runs.map(parseBlock).join("")
+                + close;
+        });
+
+        return open + items.join("") + close;
+
+    }
+
     if (block.type == "strong") {
         const open = "<text:span text:style-name=\"t-bold\">";
         const close = "</text:span>";
         return open + block.runs.map(parseBlock).join("") + close;
     }
-    
+
     if (block.type == "em") {
         const open = "<text:span text:style-name=\"t-italic\">";
         const close = "</text:span>";
         return open + block.runs.map(parseBlock).join("") + close;
     }
-    
+
     if (block.type == "strike") {
         const open = "<text:span text:style-name=\"t-strike\">";
         const close = "</text:span>";

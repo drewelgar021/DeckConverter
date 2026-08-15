@@ -15,6 +15,10 @@ By Drewza
 
 Content **bold** _italic_ ~~struck~~
 
+- list cunt
+- another list item
+    - a nested item
+
 ---
 
 <!-- draft: true -->
