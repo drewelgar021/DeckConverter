@@ -15,9 +15,10 @@ By Drewza
 
 Content **bold** _italic_ ~~struck~~
 
-- list cunt
+- list
 - another list item
     - a nested item
+    - another one
 
 ---
 

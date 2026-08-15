@@ -316,12 +316,23 @@ function parseBlock(block) {
         const close = "        </text:list>\n";
         
         const items = block.items.map((item) => {
-            const open
-                = "                <text:list-item><text:p text:style-name=\"p-body\">\n";
-            const close = "                </text:p></text:list-item>\n";
+            const open = "                "
+                + "<text:list-item><text:p text:style-name=\"p-body\">";
+            const closeText = "</text:p>";
+            const closeItem = "</text:list-item>\n"
+
+            const subListOpen = item.items.length > 0 ? "<text:list>\n" : "";
+            const subListClose = item.items.length > 0 ? "</text:list>\n" : "";
+
+            const subList = item.items.map((item) =>
+                open + item.runs.map(parseBlock)
+                    .join("") + closeText + closeItem).join("");
+
             return open
                 + item.runs.map(parseBlock).join("")
-                + close;
+                + closeText
+                + subListOpen + subList + subListClose
+                + closeItem;
         });
 
         return open + items.join("") + close;
