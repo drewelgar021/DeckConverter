@@ -312,9 +312,10 @@ function parseBlock(block) {
     }
 
     if (block.kind == "list") {
-        const open = "            <text:list text:style-name=\"l-bullets\">\n";
+        const style = block.ordered ? "l-numbered" : "l-bullets";
+        const open = `            <text:list text:style-name=\"${style}\">\n`;
         const close = "        </text:list>\n";
-        
+
         const items = block.items.map((item) => {
             const open = "                "
                 + "<text:list-item><text:p text:style-name=\"p-body\">";
