@@ -60,6 +60,10 @@ const AUTO_STYLES_OPEN =
     <style:style style:name=\"p-subhead\" style:family=\"paragraph\">
         <style:text-properties fo:font-size=\"22pt\" fo:font-weight=\"bold\"/>
     </style:style>
+    <style:style style:name=\"p-quote\" style:family=\"paragraph\">
+        <style:text-properties fo:font-style=\"italic\"/>
+        <style:paragraph-properties fo:margin-left=\"0.5cm\"/>
+    </style:style>
     <style:style style:name=\"t-bold\" style:family=\"text\">
         <style:text-properties fo:font-weight=\"bold\"/>
     </style:style>
@@ -88,7 +92,7 @@ const AUTO_STYLES_OPEN =
             <style:list-level-properties text:space-before=\"0cm\"
                     text:min-label-width=\"0.7cm\"/>
         </text:list-level-style-number>
-    </text:list-style>\n`;
+    </text:list-style>`;
 
 const AUTO_STYLES_CLOSE = "</office:automatic-styles>\n"
 const MASTER_STYLES =
@@ -355,6 +359,12 @@ function parseBlock(block) {
     if (block.type == "strike") {
         const open = "<text:span text:style-name=\"t-strike\">";
         const close = "</text:span>";
+        return open + block.runs.map(parseBlock).join("") + close;
+    }
+
+    if (block.kind == "quote") {
+        const open = `                <text:p text:style-name=\"p-quote\">`;
+        const close = "</text:p>\n";
         return open + block.runs.map(parseBlock).join("") + close;
     }
 
