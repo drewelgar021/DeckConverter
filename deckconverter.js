@@ -44,32 +44,41 @@ const ROOT_CLOSE = "</office:document>\n"
 const STYLES = "<office:styles/>\n";
 const AUTO_STYLES_OPEN =
 `<office:automatic-styles>
+    
     <style:page-layout style:name=\"PM1\">
         <style:page-layout-properties
                 fo:page-width=\"25.4cm\"
                 fo:page-height=\"14.29cm\"
             style:print-orientation=\"landscape\"/>
     </style:page-layout>
+    
     <style:style style:name=\"pr-frame\" style:family=\"graphic\">
         <style:graphic-properties draw:fill=\"none\" draw:stroke=\"none\"
             draw:auto-grow-height=\"true\" fo:padding=\"0cm\"/>
     </style:style>
+
     <style:style style:name=\"p-title\" style:family=\"paragraph\">
         <style:text-properties fo:font-size=\"40pt\" fo:font-weight=\"bold\"/>
     </style:style>
+
     <style:style style:name=\"p-subhead\" style:family=\"paragraph\">
         <style:text-properties fo:font-size=\"22pt\" fo:font-weight=\"bold\"/>
     </style:style>
+    
     <style:style style:name=\"p-quote\" style:family=\"paragraph\">
         <style:text-properties fo:font-style=\"italic\"/>
         <style:paragraph-properties fo:margin-left=\"0.5cm\"/>
     </style:style>
+
+    
     <style:style style:name=\"t-bold\" style:family=\"text\">
         <style:text-properties fo:font-weight=\"bold\"/>
     </style:style>
+    
     <style:style style:name=\"t-italic\" style:family=\"text\">
         <style:text-properties fo:font-style=\"italic\"/>
     </style:style>
+    
     <style:style style:name=\"t-strike\" style:family=\"text\">
         <style:text-properties style:text-line-through-style=\"solid\"/>
     </style:style>
@@ -105,10 +114,20 @@ const BODY_OPEN = "<office:body><office:presentation>\n";
 const BODY_CLOSE = "</office:presentation></office:body>\n";
 const SLIDE_CLOSE = "   </draw:page>\n"
 
+const NOTES_OPEN =
+`       <presentation:notes>
+            <draw:frame presentation:class=\"notes\" draw:style-name=\"pr-frame\"
+                    svg:x=\"2cm\" svg:y=\"12cm\"
+                    svg:width=\"16cm\" svg:height=\"10cm\">
+                <draw:text-box>\n`
+const NOTES_CLOSE =
+`               </draw:text-box>
+            </draw:frame>
+        </presentation:notes>\n`;
+
 const META_OPEN = 
 `<office:meta>
-    <meta:generator>deckconverter</meta:generator>
-`;
+    <meta:generator>deckconverter</meta:generator>\n`;
 const META_CLOSE = "</office:meta>\n";
 
 /**
@@ -368,7 +387,6 @@ function parseBlock(block) {
         return open + block.runs.map(parseBlock).join("") + close;
     }
 
-    // TODO: Unsupported elements message.
     return "";
 }
 
@@ -431,6 +449,21 @@ function parseContent(slide) {
     return open + content + close;
 }
 
+/**
+ * Parses an array of notes blocks into a notes frame.
+ * It is assumed that all blocks in the array are of kind "notes".
+ *
+ * @param {Object[]} blocks - Array containing all notes blocks of a slide.
+ *
+ * @param {String} An ODF notes element containing the notes.
+ */
+function parseNotes(blocks) {
+    const parsedNotes = blocks.map((block) => 
+`                <text:p text-style-name=\"p-notes\">${block.text}</text:p>\n`);
+
+    return NOTES_OPEN + parsedNotes + NOTES_CLOSE;
+}
+
 
 /**
  * Parses a JSON slide structure to an ODF page.
@@ -450,15 +483,20 @@ function parseSlide(slide, slideNo) {
             && (block.level == 1 || block.level == 2))[0]
         .runs.filter((run) => run.type == "text")[0].value;
 
+
     const titleFrame = parseTitle(slide);
     const contentFrame = parseContent(slide);
 
     const slideName = title ? toKebabCase(title) : `$slide${slideNo}`;
 
+    const notesBlocks = slide.content.filter((block) => block.kind == "note");
+
+    const notes = parseNotes(notesBlocks);
+
     const open =
 `   <draw:page draw:name=\"${slideName}\" draw:master-page-name=\"Default\">\n`;
 
-    return open + titleFrame + contentFrame + SLIDE_CLOSE;
+    return open + titleFrame + contentFrame + notes + SLIDE_CLOSE;
 }
 
 

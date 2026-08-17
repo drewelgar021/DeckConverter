@@ -22,6 +22,10 @@ Content **bold** _italic_ ~~struck~~
 
 > quote cunt
 
+footnotes are not supported[^1]
+
+[^1]: footnote
+
 ---
 
 <!-- draft: true -->
@@ -39,3 +43,7 @@ This is a draft
 and some text
 
 and another paragraph
+
+^ This is a note that is not visible on the page
+
+^ and here are more notes
