@@ -400,12 +400,16 @@ function parseStyles(model) {
  * Each return will be prepended and appended with the appropriate opening and
  * closing XML tags, which are determined by the `block.type`.
  *
- * @param {Object} block - A single block to parse, which may recursively
- *                         contain more blocks in its `runs` array.
- * 
+ * @param {Object} block         - A single block to parse, which may
+ *                                 recursively contain more blocks in its `runs`
+ *                                 array.
+ * @param {String} [customStyle] - A custom style suffix of form "-sX" where X
+ *                                 is the slide number, to use custom font and
+ *                                 background colours.
+ *
  * @return {String} The parsed ODF slide content.
  */
-function parseBlock(block) {
+function parseBlock(block, customStyle="") {
     if (block.type == "text") {
         if (block.value.match(/\[\^[0-9]*\]/)) {
             return "[Unsupported: footnote omitted]";
@@ -416,7 +420,8 @@ function parseBlock(block) {
     }
     if (block.kind == "heading") {
         if (block.level == 1 || block.level == 2) {
-            const open = "                <text:p text:style-name=\"p-title\">"
+            const open = 
+`                <text:p text:style-name=\"p-title${customStyle}\">`
             const close = "</text:p>\n"
             return open
                 + block.runs.map(parseBlock).join("")
@@ -500,10 +505,13 @@ function parseBlock(block) {
  * The title is the first level 1 or 2 heading in the slide.
  *
  * @param {Object} slide - The slide being parsed to ODF.
+ * @param {String} [customStyle] - A custom style suffix of form "-sX" where X
+ *                                 is the slide number, to use custom font and
+ *                                 background colours.
  *
  * @param {String} The ODF title frame from the slide provided.
  */
-function parseTitle(slide) {
+function parseTitle(slide, customStyle="") {
     const open = 
 `        <draw:frame presentation:class=\"title\" draw:style-name=\"pr-frame\"
                 svg:x=\"1.4cm\" svg:y=\"0.9cm\"
@@ -521,7 +529,7 @@ function parseTitle(slide) {
             && (block.level == "1" || block.level == "2"))[0];
 
     if (titleBlock) {
-        return open + parseBlock(titleBlock) + close;
+        return open + parseBlock(titleBlock, customStyle) + close;
     }
 
     return "";
@@ -532,11 +540,14 @@ function parseTitle(slide) {
 /**
  * Obtains the ODF content frame from a JSON slide structure.
  *
- * @param slide {Object} - The slide being parsed to ODF.
+ * @param {Object} slide         - The slide being parsed to ODF.
+ * @param {String} [customStyle] - A custom style suffix of form "-sX" where X
+ *                                 is the slide number, to use custom font and
+ *                                 background colours
  *
  * @return {String} The ODF content frame from the slide provided.
  */
-function parseContent(slide) {
+function parseContent(slide, customStyle="") {
     const open = 
 `        <draw:frame presentation:class=\"outline\" draw:style-name=\"pr-frame\"
                 svg:x=\"1.4cm\" svg:y=\"3.9cm\"
@@ -548,7 +559,7 @@ function parseContent(slide) {
     const content = slide.content
         .filter((block) => !(block.kind == "heading"
                 && (block.level == 1 || block.level == 2))) 
-        .map(parseBlock).join("");
+        .map((block) => parseBlock(block, customStyle)).join("");
 
     return open + content + close;
 }
@@ -574,15 +585,16 @@ function parseNotes(blocks) {
  * It is assumed that the slide is valid.
  *
  * @param {Object} slide - The JSON slide being parsed to ODF.
- * @param {int} slideNo  - Used in the unique slide name.
+ * @param {int} slideNo  - Used in the unique slide name and slide-specific
+ *                         custom styles.
  * 
  * @return {String} The single ODF slide parsed from the provided slide
  *                  structure.
  */
 function parseSlide(slide, slideNo) {
 
-    const titleFrame = parseTitle(slide);
-    const contentFrame = parseContent(slide);
+    const titleFrame = parseTitle(slide, `-s${slideNo}`);
+    const contentFrame = parseContent(slide, `-s${slideNo}`);
 
     const slideName = `$s${slideNo}`;
 
