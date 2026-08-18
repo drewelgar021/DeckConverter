@@ -41,74 +41,27 @@ const ROOT_OPEN =
 `;
 const ROOT_CLOSE = "</office:document>\n"
 
-const STYLES = "<office:styles/>\n";
-const AUTO_STYLES_OPEN =
-`<office:automatic-styles>
-    
+const STYLES_OPEN =
+`<office:styles/>
+<office:automatic-styles>
+
     <style:page-layout style:name=\"PM1\">
         <style:page-layout-properties
                 fo:page-width=\"25.4cm\"
                 fo:page-height=\"14.29cm\"
             style:print-orientation=\"landscape\"/>
     </style:page-layout>
-    
+
     <style:style style:name=\"pr-frame\" style:family=\"graphic\">
         <style:graphic-properties draw:fill=\"none\" draw:stroke=\"none\"
             draw:auto-grow-height=\"true\" fo:padding=\"0cm\"/>
-    </style:style>
+    </style:style>\n`;
 
-    <style:style style:name=\"p-title\" style:family=\"paragraph\">
-        <style:text-properties fo:font-size=\"40pt\" fo:font-weight=\"bold\"/>
-    </style:style>
-
-    <style:style style:name=\"p-subhead\" style:family=\"paragraph\">
-        <style:text-properties fo:font-size=\"22pt\" fo:font-weight=\"bold\"/>
-    </style:style>
-    
-    <style:style style:name=\"p-quote\" style:family=\"paragraph\">
-        <style:text-properties fo:font-style=\"italic\"/>
-        <style:paragraph-properties fo:margin-left=\"0.5cm\"/>
-    </style:style>
-
-    
-    <style:style style:name=\"t-bold\" style:family=\"text\">
-        <style:text-properties fo:font-weight=\"bold\"/>
-    </style:style>
-    
-    <style:style style:name=\"t-italic\" style:family=\"text\">
-        <style:text-properties fo:font-style=\"italic\"/>
-    </style:style>
-    
-    <style:style style:name=\"t-strike\" style:family=\"text\">
-        <style:text-properties style:text-line-through-style=\"solid\"/>
-    </style:style>
-
-    <text:list-style style:name=\"l-bullets\">
-        <text:list-level-style-bullet text:level=\"1\" text:bullet-char=\"•\">
-            <text:list-level-properties text:space-before=\"0cm\"
-                    text:min-label-width=\"0.7cm\"/>
-        </text:list-level-style-bullet>
-
-        <text:list-level-style-bullet text:level=\"2\" text:bullet-char=\"-\">
-            <style:list-level-properties text:space-before=\"0.9cm\"
-                    text:min-label-width=\"0.7cm\"/>
-        </text:list-level-style-bullet>
-    </text:list-style>
-
-    <text:list-style style:name=\"l-numbered\">
-        <text:list-level-style-number text:level=\"1\" style:num-format=\"1\"
-                style:num-suffix=\".\">
-            <style:list-level-properties text:space-before=\"0cm\"
-                    text:min-label-width=\"0.7cm\"/>
-        </text:list-level-style-number>
-    </text:list-style>`;
-
-const AUTO_STYLES_CLOSE = "</office:automatic-styles>\n"
+const STYLES_CLOSE = "</office:automatic-styles>\n"
 const MASTER_STYLES =
 `<office:master-styles>
     <style:master-page style:name=\"Default\" style:page-layout-name=\"PM1\"/>
-</office:master-styles>
-`;
+</office:master-styles>\n`;
 
 const BODY_OPEN = "<office:body><office:presentation>\n";
 const BODY_CLOSE = "</office:presentation></office:body>\n";
@@ -289,7 +242,55 @@ function toModel(blocks) {
  *                  and (empty) `office:styles` trees parsed from the model.
  */
 function parseStyles(model) {
-    return STYLES + AUTO_STYLES_OPEN + AUTO_STYLES_CLOSE + MASTER_STYLES;
+    const styles =
+`    <style:style style:name=\"p-title\" style:family=\"paragraph\">
+        <style:text-properties fo:font-size=\"40pt\" fo:font-weight=\"bold\"/>
+    </style:style>
+
+    <style:style style:name=\"p-subhead\" style:family=\"paragraph\">
+        <style:text-properties fo:font-size=\"22pt\" fo:font-weight=\"bold\"/>
+    </style:style>
+
+    <style:style style:name=\"p-quote\" style:family=\"paragraph\">
+        <style:text-properties fo:font-style=\"italic\"/>
+        <style:paragraph-properties fo:margin-left=\"0.5cm\"/>
+    </style:style>
+
+
+    <style:style style:name=\"t-bold\" style:family=\"text\">
+        <style:text-properties fo:font-weight=\"bold\"/>
+    </style:style>
+
+    <style:style style:name=\"t-italic\" style:family=\"text\">
+        <style:text-properties fo:font-style=\"italic\"/>
+    </style:style>
+
+    <style:style style:name=\"t-strike\" style:family=\"text\">
+        <style:text-properties style:text-line-through-style=\"solid\"/>
+    </style:style>
+
+
+    <text:list-style style:name=\"l-bullets\">
+        <text:list-level-style-bullet text:level=\"1\" text:bullet-char=\"•\">
+            <text:list-level-properties text:space-before=\"0cm\"
+                    text:min-label-width=\"0.7cm\"/>
+        </text:list-level-style-bullet>
+
+        <text:list-level-style-bullet text:level=\"2\" text:bullet-char=\"-\">
+            <style:list-level-properties text:space-before=\"0.9cm\"
+                    text:min-label-width=\"0.7cm\"/>
+        </text:list-level-style-bullet>
+    </text:list-style>
+
+    <text:list-style style:name=\"l-numbered\">
+        <text:list-level-style-number text:level=\"1\" style:num-format=\"1\"
+                style:num-suffix=\".\">
+            <style:list-level-properties text:space-before=\"0cm\"
+                    text:min-label-width=\"0.7cm\"/>
+        </text:list-level-style-number>
+    </text:list-style>\n`;
+
+    return STYLES_OPEN + styles + STYLES_CLOSE + MASTER_STYLES;
 }
 
 
