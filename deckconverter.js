@@ -255,15 +255,22 @@ function parseStyles(model) {
 
 
     <style:style style:name=\"p-title\" style:family=\"paragraph\">
-        <style:text-properties fo:font-size=\"40pt\" fo:font-weight=\"bold\"/>
+        <style:text-properties fo:font-size=\"40pt\" fo:font-weight=\"bold\"
+                fo:color=\"${color}\"/>
+    </style:style>
+
+    <style:style style:name=\"p-body\" style:family=\"paragraph\">
+        <style:text-properties fo:color=\"${color}\"/>
     </style:style>
 
     <style:style style:name=\"p-subhead\" style:family=\"paragraph\">
-        <style:text-properties fo:font-size=\"22pt\" fo:font-weight=\"bold\"/>
+        <style:text-properties fo:font-size=\"22pt\" fo:font-weight=\"bold\"
+                fo:color=\"${color}\"/>
     </style:style>
 
     <style:style style:name=\"p-quote\" style:family=\"paragraph\">
-        <style:text-properties fo:font-style=\"italic\"/>
+        <style:text-properties fo:font-style=\"italic\"
+                fo:color=\"${color}\"/>
         <style:paragraph-properties fo:margin-left=\"0.5cm\"/>
     </style:style>
 
@@ -285,11 +292,13 @@ function parseStyles(model) {
         <text:list-level-style-bullet text:level=\"1\" text:bullet-char=\"•\">
             <text:list-level-properties text:space-before=\"0cm\"
                     text:min-label-width=\"0.7cm\"/>
+            <style:text-properties fo:color=\"${color}\"/>
         </text:list-level-style-bullet>
 
         <text:list-level-style-bullet text:level=\"2\" text:bullet-char=\"-\">
             <style:list-level-properties text:space-before=\"0.9cm\"
                     text:min-label-width=\"0.7cm\"/>
+            <style:text-properties fo:color=\"${color}\"/>
         </text:list-level-style-bullet>
     </text:list-style>
 
@@ -298,6 +307,7 @@ function parseStyles(model) {
                 style:num-suffix=\".\">
             <style:list-level-properties text:space-before=\"0cm\"
                     text:min-label-width=\"0.7cm\"/>
+            <style:text-properties fo:color=\"${color}\"/>
         </text:list-level-style-number>
     </text:list-style>\n`;
 
