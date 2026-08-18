@@ -230,6 +230,80 @@ function toModel(blocks) {
 
 
 /**
+ * Creates a set of custom styles for the slide based on its directives.
+ * Styles for font color are only generated if a font color directive is
+ * explicitly included in the slide, and the same applies for background color.
+ * If neither directive exists for a slide, then the empty string will be
+ * returned.
+ * A slide-specific style will be named after its corresponding default style,
+ * with "-sN" appended for slide N.
+ *
+ * @param {Object} slide - The slide to check for directives.
+ * @param {String} A set of ODF styles that implement the color and
+ * backgroundColor directives.
+ */
+function createCustomStyles(slide, slideNo) {
+    const colorStyle = slide.color ?
+`
+    <style:style style:name=\"p-title-s${slideNo}\" style:family=\"paragraph\">
+        <style:text-properties fo:font-size=\"40pt\" fo:font-weight=\"bold\"
+                fo:color=\"${slide.color}\"/>
+    </style:style>
+
+    <style:style style:name=\"p-body-s${slideNo}\" style:family=\"paragraph\">
+        <style:text-properties fo:color=\"${slide.color}\"/>
+    </style:style>
+
+    <style:style style:name=\"p-subhead-s${slideNo}\"
+            style:family=\"paragraph\">
+        <style:text-properties fo:font-size=\"22pt\" fo:font-weight=\"bold\"
+                fo:color=\"${slide.color}\"/>
+    </style:style>
+
+    <style:style style:name=\"p-quote-s${slideNo}\" style:family=\"paragraph\">
+        <style:text-properties fo:font-style=\"italic\"
+                fo:color=\"${slide.color}\"/>
+        <style:paragraph-properties fo:margin-left=\"0.5cm\"/>
+    </style:style>
+    <text:list-style style:name=\"l-bullets-s${slideNo}\">
+        <text:list-level-style-bullet text:level=\"1\" text:bullet-char=\"•\">
+            <text:list-level-properties text:space-before=\"0cm\"
+                    text:min-label-width=\"0.7cm\"/>
+            <style:text-properties fo:color=\"${slide.color}\"/>
+        </text:list-level-style-bullet>
+
+        <text:list-level-style-bullet text:level=\"2\" text:bullet-char=\"-\">
+            <style:list-level-properties text:space-before=\"0.9cm\"
+                    text:min-label-width=\"0.7cm\"/>
+            <style:text-properties fo:color=\"${slide.color}\"/>
+        </text:list-level-style-bullet>
+    </text:list-style>
+
+    <text:list-style style:name=\"l-numbered-s${slideNo}\">
+        <text:list-level-style-number text:level=\"1\" style:num-format=\"1\"
+                style:num-suffix=\".\">
+            <style:list-level-properties text:space-before=\"0cm\"
+                    text:min-label-width=\"0.7cm\"/>
+            <style:text-properties fo:color=\"${slide.color}\"/>
+        </text:list-level-style-number>
+    </text:list-style>\n`
+        : "";
+
+    const backgroundColorStyle = slide.backgroundColor ?
+`    <style:style style:name=\"dp-slide-s${slideNo}\"
+            style:family=\"drawing-page\">
+        <style:drawing-page-properties draw:fill=\"solid\"
+                draw:fill-color=\"${slide.backgroundColor}\"
+                presentation:background-visible=\"true\"
+                presentation:background-objects-visible=\"true\"/>
+    </style:style>\n`
+        : "";
+
+    return colorStyle + backgroundColorStyle;
+}
+
+
+/**
  * Obtains the ODF document-wide style information from a JSON deck model, and
  * returns an XML ODF representation that can be used directly in a flat ODP
  * file.
@@ -311,7 +385,11 @@ function parseStyles(model) {
         </text:list-level-style-number>
     </text:list-style>\n`;
 
-    return STYLES_OPEN + styles + STYLES_CLOSE + MASTER_STYLES;
+    // Per-slide styles
+    const customStyles = model.slides
+        .map((slide, index) => createCustomStyles(slide, index)).join("");
+
+    return STYLES_OPEN + styles + customStyles + STYLES_CLOSE + MASTER_STYLES;
 }
 
 
