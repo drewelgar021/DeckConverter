@@ -307,6 +307,10 @@ function parseStyles(model) {
  */
 function parseBlock(block) {
     if (block.type == "text") {
+        if (block.value.match(/\[\^[0-9]*\]/)) {
+            return "[Unsupported: footnote omitted]";
+        }
+
         // Minimum structure is a block of text.
         return block.value;
     }
