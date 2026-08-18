@@ -39,6 +39,9 @@ This is a draft
 
 ## Slide 3
 
+<!-- color: #ff0000 -->
+<!-- backgroundColor: #00ffff-->
+
 ### subheading cunt
 
 and some text

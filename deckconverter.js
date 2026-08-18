@@ -496,26 +496,17 @@ function parseNotes(blocks) {
  * It is assumed that the slide is valid.
  *
  * @param {Object} slide - The JSON slide being parsed to ODF.
- * @param {int} slideNo  - Used in the fallback slide name where no title is
- *                         provided.
+ * @param {int} slideNo  - Used in the unique slide name.
  * 
  * @return {String} The single ODF slide parsed from the provided slide
  *                  structure.
  */
 function parseSlide(slide, slideNo) {
-    // Take the first heading of level 1 or 2 as the title.
-    const titleBlock = slide.content
-        .filter((block) => block.kind == "heading"
-            && (block.level == 1 || block.level == 2))[0];
-    const title = titleBlock ?
-        titleBlock.runs.filter((run) => run.type == "text")[0].value
-        : "";
-
 
     const titleFrame = parseTitle(slide);
     const contentFrame = parseContent(slide);
 
-    const slideName = title ? toKebabCase(title) : `$slide${slideNo}`;
+    const slideName = `$s${slideNo}`;
 
     const notesBlocks = slide.content.filter((block) => block.kind == "note");
 
