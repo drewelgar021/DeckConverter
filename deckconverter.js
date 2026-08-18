@@ -242,8 +242,19 @@ function toModel(blocks) {
  *                  and (empty) `office:styles` trees parsed from the model.
  */
 function parseStyles(model) {
+    const backgroundColor = model.backgroundColor ? model.backgroundColor
+                            : "#ffffff";
+    const color = model.color ? model.color : "#000000";
     const styles =
-`    <style:style style:name=\"p-title\" style:family=\"paragraph\">
+`    <style:style style:name=\"dp-slide\" style:family=\"drawing-page\">
+        <style:drawing-page-properties draw:fill=\"solid\"
+                draw:fill-color=\"${backgroundColor}\"
+                presentation:background-visible=\"true\"
+                presentation:background-objects-visible=\"true\"/>
+    </style:style>
+
+
+    <style:style style:name=\"p-title\" style:family=\"paragraph\">
         <style:text-properties fo:font-size=\"40pt\" fo:font-weight=\"bold\"/>
     </style:style>
 
@@ -501,7 +512,8 @@ function parseSlide(slide, slideNo) {
     const notes = parseNotes(notesBlocks);
 
     const open =
-`   <draw:page draw:name=\"${slideName}\" draw:master-page-name=\"Default\">\n`;
+`   <draw:page draw:name=\"${slideName}\" draw:master-page-name=\"Default\"
+            draw:style-name=\"dp-slide\">\n`;
 
     return open + titleFrame + contentFrame + notes + SLIDE_CLOSE;
 }

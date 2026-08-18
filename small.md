@@ -1,6 +1,7 @@
 ---
 title: Small Deck
 author: Drew Elgar
+backgroundColor: #aaaaaa
 ---
 
 <!-- layout: title -->
