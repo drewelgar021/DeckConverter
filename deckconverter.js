@@ -483,10 +483,12 @@ function parseNotes(blocks) {
  */
 function parseSlide(slide, slideNo) {
     // Take the first heading of level 1 or 2 as the title.
-    const title = slide.content
+    const titleBlock = slide.content
         .filter((block) => block.kind == "heading"
-            && (block.level == 1 || block.level == 2))[0]
-        .runs.filter((run) => run.type == "text")[0].value;
+            && (block.level == 1 || block.level == 2))[0];
+    const title = titleBlock ?
+        titleBlock.runs.filter((run) => run.type == "text")[0].value
+        : "";
 
 
     const titleFrame = parseTitle(slide);
