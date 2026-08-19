@@ -408,7 +408,7 @@ function parseStyles(model) {
  * @param {Object} block         - A single block to parse, which may
  *                                 recursively contain more blocks in its `runs`
  *                                 array.
- * @param {String} [customStyle] - A custom style suffix of form "-sX" where X
+ * @param {String} [customStyle] - A custom style suffix of form "-sN" where N
  *                                 is the slide number, to use custom font and
  *                                 background colours.
  *
@@ -519,7 +519,7 @@ function parseBlock(block, customStyle="") {
  *
  * @param {String} The ODF title frame from the slide provided.
  */
-function parseTitle(slide, customStyle="") {
+function parseDefaultTitle(slide, customStyle="") {
     const open = 
 `        <draw:frame presentation:class=\"title\" draw:style-name=\"pr-frame\"
                 svg:x=\"1.4cm\" svg:y=\"0.9cm\"
@@ -555,7 +555,7 @@ function parseTitle(slide, customStyle="") {
  *
  * @return {String} The ODF content frame from the slide provided.
  */
-function parseContent(slide, customStyle="") {
+function parseDefaultContent(slide, customStyle="") {
     const open = 
 `        <draw:frame presentation:class=\"outline\" draw:style-name=\"pr-frame\"
                 svg:x=\"1.4cm\" svg:y=\"3.9cm\"
@@ -589,6 +589,21 @@ function parseNotes(blocks) {
     return NOTES_OPEN + parsedNotes + NOTES_CLOSE;
 }
 
+/**
+ * Parses a JSON slide structure to an ODF slide with the default layout.
+ *
+ * @param {Object} slide   - The JSON slide to parse to ODF.
+ * @param {Stirng} [style] - Custom style suffix of the form "-sN" where N is
+ *                           the slide number.
+ */
+function parseDefault(slide, style = "") {
+    const titleFrame = parseDefaultTitle(slide, style);
+    const contentFrame = parseDefaultContent(slide, style);
+
+    return titleFrame + contentFrame;
+
+}
+
 
 /**
  * Parses a JSON slide structure to an ODF page.
@@ -603,10 +618,6 @@ function parseNotes(blocks) {
  */
 function parseSlide(slide, slideNo) {
 
-    const textStyle = slide.color ? `-s${slideNo}` : "";
-    const titleFrame = parseTitle(slide, textStyle);
-    const contentFrame = parseContent(slide, textStyle);
-
     const slideName = `$s${slideNo}`;
 
     const notesBlocks = slide.content.filter((block) => block.kind == "note");
@@ -619,7 +630,10 @@ function parseSlide(slide, slideNo) {
 `   <draw:page draw:name=\"${slideName}\" draw:master-page-name=\"Default\"
             draw:style-name=\"dp-slide${slideStyle}\">\n`;
 
-    return open + titleFrame + contentFrame + notes + SLIDE_CLOSE;
+    const textStyle = slide.color ? `-s${slideNo}` : "";
+    const slideContents = parseDefault(slide, textStyle);
+
+    return open + slideContents + notes + SLIDE_CLOSE;
 }
 
 

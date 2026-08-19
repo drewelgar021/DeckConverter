@@ -31,6 +31,10 @@ footnotes are not supported[^1]
 
 ---
 
+<!-- agenda -->
+
+---
+
 <!-- draft: true -->
 
 ## Slide 2
