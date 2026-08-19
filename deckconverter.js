@@ -169,6 +169,11 @@ function getContent(blocks) {
     return blocks.filter((block) => block.kind != "directive");
 }
 
+const escape = (text) => text.replaceAll("&", "&amp;")
+                             .replaceAll("<", "&lt;")
+                             .replaceAll(">", "&gt;")
+                             .replaceAll("\"", "&quot;");
+
 
 /**
  * Converts an array of blocks into an array of slides.
@@ -416,15 +421,8 @@ function parseBlock(block, customStyle="") {
             return "[Unsupported: footnote omitted]";
         }
         
-        const escaped = block.value
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll("\"", "&quot;");
-        
-
         // Minimum structure is a block of text.
-        return escaped;
+        return escape(block.value);
     }
     if (block.kind == "heading") {
         if (block.level == 1 || block.level == 2) {
@@ -584,7 +582,9 @@ function parseContent(slide, customStyle="") {
  */
 function parseNotes(blocks) {
     const parsedNotes = blocks.map((block) => 
-`                <text:p text-style-name=\"p-notes\">${block.text}</text:p>\n`);
+`                <text:p text:style-name=\"p-notes\">
+                    ${escape(block.text)}
+                </text:p>\n`);
 
     return NOTES_OPEN + parsedNotes + NOTES_CLOSE;
 }
@@ -603,8 +603,9 @@ function parseNotes(blocks) {
  */
 function parseSlide(slide, slideNo) {
 
-    const titleFrame = parseTitle(slide, `-s${slideNo}`);
-    const contentFrame = parseContent(slide, `-s${slideNo}`);
+    const textStyle = slide.color ? `-s${slideNo}` : "";
+    const titleFrame = parseTitle(slide, textStyle);
+    const contentFrame = parseContent(slide, textStyle);
 
     const slideName = `$s${slideNo}`;
 
