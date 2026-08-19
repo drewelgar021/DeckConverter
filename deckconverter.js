@@ -429,7 +429,7 @@ function parseBlock(block, customStyle="") {
         }
         if (block.level == 3) {
             const open =
-                "                <text:p text:style-name=\"p-subhead\">";
+`                <text:p text:style-name=\"p-subhead${customStyle}\">`;
             const close = "</text:p>\n";
             return open
                 + block.runs.map(parseBlock).join("")
@@ -437,14 +437,23 @@ function parseBlock(block, customStyle="") {
         }
     }
     if (block.kind == "paragraph") {
-        const open = "                <text:p text:style-name=\"p-body\">";
+        const open =
+`                <text:p text:style-name=\"p-body${customStyle}\">`;
         const close = "</text:p>\n"
 
         return open + block.runs.map(parseBlock).join("") + close;
     }
+    
+    if (block.kind == "quote") {
+        const open =
+`                <text:p text:style-name=\"p-quote${customStyle}\">`;
+        const close = "</text:p>\n";
+        return open + block.runs.map(parseBlock).join("") + close;
+    }
 
     if (block.kind == "list") {
-        const style = block.ordered ? "l-numbered" : "l-bullets";
+        const style = block.ordered ?
+            `l-numbered${customStyle}` : `l-bullets${customStyle}`;
         const open = `            <text:list text:style-name=\"${style}\">\n`;
         const close = "        </text:list>\n";
 
@@ -469,9 +478,8 @@ function parseBlock(block, customStyle="") {
         });
 
         return open + items.join("") + close;
-
     }
-
+    
     if (block.type == "strong") {
         const open = "<text:span text:style-name=\"t-bold\">";
         const close = "</text:span>";
@@ -487,12 +495,6 @@ function parseBlock(block, customStyle="") {
     if (block.type == "strike") {
         const open = "<text:span text:style-name=\"t-strike\">";
         const close = "</text:span>";
-        return open + block.runs.map(parseBlock).join("") + close;
-    }
-
-    if (block.kind == "quote") {
-        const open = `                <text:p text:style-name=\"p-quote\">`;
-        const close = "</text:p>\n";
         return open + block.runs.map(parseBlock).join("") + close;
     }
 
