@@ -4,7 +4,8 @@
   "description": "",
   "main": "presentMDparser.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "small": "node deckconverter.js small.md out --model",
+    "all": "node deckconverter.js in out"
   },
   "repository": {
     "type": "git",
