@@ -21,6 +21,8 @@ Content **bold** _italic_ ~~struck~~
     - a nested item
     - another one
 
+This string < " needs to be & escaped >
+
 > quote cunt
 
 footnotes are not supported[^1]

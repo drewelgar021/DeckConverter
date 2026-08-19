@@ -411,12 +411,20 @@ function parseStyles(model) {
  */
 function parseBlock(block, customStyle="") {
     if (block.type == "text") {
+        // Substitute footnotes
         if (block.value.match(/\[\^[0-9]*\]/)) {
             return "[Unsupported: footnote omitted]";
         }
+        
+        const escaped = block.value
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll("\"", "&quot;");
+        
 
         // Minimum structure is a block of text.
-        return block.value;
+        return escaped;
     }
     if (block.kind == "heading") {
         if (block.level == 1 || block.level == 2) {
