@@ -600,19 +600,37 @@ function parseDefaultSlide(slide, style = "") {
     return titleFrame + contentFrame;
 }
 
+function parseTitleSlide(slide, style="") {
+    return "";
+}
+
+function parseSectionSlide(slide, style="") {
+    return "";
+}
+
+
+function generateAgenda(model, style="") {
+    return "";
+}
+
 
 /**
  * Parses a JSON slide structure to an ODF page.
  * It is assumed that the slide is valid.
  *
- * @param {Object} slide - The JSON slide being parsed to ODF.
- * @param {int} slideNo  - Used in the unique slide name and slide-specific
- *                         custom styles.
+ * @param {Object} slide           - The JSON slide being parsed to ODF.
+ * @param {int} slideNo            - Used in the unique slide name and
+ *                                   slide-specific custom styles.
+ * @param {Object} model           - The deck model to use for generating an
+ *                                   agenda slide.
+ * @param {String} [defaultLayout] - The default layout to use when no layout is
+ *                                   explicitly defined in the slide's
+ *                                   directives.
  * 
  * @return {String} The single ODF slide parsed from the provided slide
  *                  structure.
  */
-function parseSlide(slide, slideNo) {
+function parseSlide(slide, slideNo, model, defaultLayout="default") {
 
     const slideName = `$s${slideNo}`;
 
@@ -627,7 +645,24 @@ function parseSlide(slide, slideNo) {
             draw:style-name=\"dp-slide${slideStyle}\">\n`;
 
     const textStyle = slide.color ? `-s${slideNo}` : "";
-    const slideContents = parseDefaultSlide(slide, textStyle);
+
+    // TODO: Remove explicit "slide.layout == "default" comparisons once there
+    //       are more layout options.
+
+    // Define a function that uses the correct parser for the defaultLayout.
+    const defaultLayoutParser = 
+        defaultLayout == "title" ?
+            (slide, style) => parseTitleSlide(slide, style) :
+        defaultLayout == "section" ?
+            (slide, style) => parseSectionSlide(slide, style) :
+        (slide, style) => parseDefaultSlide(slide, style);
+
+    const slideContents =
+        slide.agenda === null ? generateAgenda(model) :
+        slide.layout == "title" ? parseTitleSlide(slide, textStyle) :
+        slide.layout == "section" ? parseSectionSlide(slide, textStyle) :
+        slide.layout == "default" ? parseDefaultSlide(slide, textStyle) :
+        defaultLayoutParser(slide, textStyle) 
 
     return open + slideContents + notes + SLIDE_CLOSE;
 }
@@ -643,7 +678,7 @@ function parseSlide(slide, slideNo) {
  */
 function parseBody(model) {
     const parsedSlides = model.slides
-        .map((slide, index) => parseSlide(slide, index));
+        .map((slide, index) => parseSlide(slide, index, model, model.layout));
     return BODY_OPEN + parsedSlides.join("") + BODY_CLOSE;
 }
 
