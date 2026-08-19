@@ -596,12 +596,11 @@ function parseNotes(blocks) {
  * @param {Stirng} [style] - Custom style suffix of the form "-sN" where N is
  *                           the slide number.
  */
-function parseDefault(slide, style = "") {
+function parseDefaultSlide(slide, style = "") {
     const titleFrame = parseDefaultTitle(slide, style);
     const contentFrame = parseDefaultContent(slide, style);
 
     return titleFrame + contentFrame;
-
 }
 
 
@@ -631,7 +630,7 @@ function parseSlide(slide, slideNo) {
             draw:style-name=\"dp-slide${slideStyle}\">\n`;
 
     const textStyle = slide.color ? `-s${slideNo}` : "";
-    const slideContents = parseDefault(slide, textStyle);
+    const slideContents = parseDefaultSlide(slide, textStyle);
 
     return open + slideContents + notes + SLIDE_CLOSE;
 }
@@ -758,68 +757,64 @@ function processFile(path, outputDir, outputModel = false) {
 }
 
 
-function main() {
-    if (process.argv.length != 4 && process.argv.length != 5) {
-        console.error(USAGE_ERROR_MSG);
-        return;
-    }
-
-    if (process.argv.length == 5 && process.argv[4] != "--model") {
-        console.error(USAGE_ERROR_MSG);
-        return;
-    }
-
-    const inputPath = process.argv[2];
-    const outputDir = process.argv[3];
-    const outputModel = process.argv.length == 5;
-
-    // statSync() throws an error if file does not exist.
-    try {
-        const stats = fs.statSync(inputPath);
-    } catch {
-        // Catch error if path does not exist to provide user-friendly error
-        // warning instead of verbose one.
-        console.error(PATH_ERROR_MSG);
-        return;
-    }
-
-    try {
-        const stats = fs.statSync(outputDir);
-    } catch {
-        // Make output directory if it does not exist.
-        fs.mkdirSync(outputDir);
-    }
-
-    const stats = fs.statSync(inputPath);
-
-    if (stats.isFile()) {
-        console.log(`${1}` + NUM_DECKS_MSG)
-        const successes = processFile(inputPath, outputDir, outputModel);
-
-        console.log(`\n${successes}` + SUCCESS_MSG);
-        console.log(`${1 - successes}` + FAILURE_MSG);
-
-
-    } else if (stats.isDirectory()) {
-        const files = fs.readdirSync(inputPath);
-        console.log(`${files.length}` + NUM_DECKS_MSG);
-
-        const successes = files.map((file) => {
-            // Append `/` to directory path if not explicitly included.
-            if (inputPath[inputPath.length - 1] == '/') {
-                return `${inputPath}${file}`;
-            }
-            return `${inputPath}/${file}`;
-
-        }).reduce((acc, file) => {
-            acc += processFile(file, outputDir, outputModel);
-            return acc;
-        }, 0);
-
-        console.log(`\n${successes}` + SUCCESS_MSG);
-        console.log(`${files.length - successes}` + FAILURE_MSG);
-
-    }
+if (process.argv.length != 4 && process.argv.length != 5) {
+    console.error(USAGE_ERROR_MSG);
+    return;
 }
 
-main();
+if (process.argv.length == 5 && process.argv[4] != "--model") {
+    console.error(USAGE_ERROR_MSG);
+    return;
+}
+
+const inputPath = process.argv[2];
+const outputDir = process.argv[3];
+const outputModel = process.argv.length == 5;
+
+// statSync() throws an error if file does not exist.
+try {
+    const stats = fs.statSync(inputPath);
+} catch {
+    // Catch error if path does not exist to provide user-friendly error
+    // warning instead of verbose one.
+    console.error(PATH_ERROR_MSG);
+    return;
+}
+
+try {
+    const stats = fs.statSync(outputDir);
+} catch {
+    // Make output directory if it does not exist.
+    fs.mkdirSync(outputDir);
+}
+
+const stats = fs.statSync(inputPath);
+
+if (stats.isFile()) {
+    console.log(`${1}` + NUM_DECKS_MSG)
+    const successes = processFile(inputPath, outputDir, outputModel);
+
+    console.log(`\n${successes}` + SUCCESS_MSG);
+    console.log(`${1 - successes}` + FAILURE_MSG);
+
+
+} else if (stats.isDirectory()) {
+    const files = fs.readdirSync(inputPath);
+    console.log(`${files.length}` + NUM_DECKS_MSG);
+
+    const successes = files.map((file) => {
+        // Append `/` to directory path if not explicitly included.
+        if (inputPath[inputPath.length - 1] == '/') {
+            return `${inputPath}${file}`;
+        }
+        return `${inputPath}/${file}`;
+
+    }).reduce((acc, file) => {
+        acc += processFile(file, outputDir, outputModel);
+        return acc;
+    }, 0);
+
+    console.log(`\n${successes}` + SUCCESS_MSG);
+    console.log(`${files.length - successes}` + FAILURE_MSG);
+
+}
