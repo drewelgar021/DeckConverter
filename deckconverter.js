@@ -592,6 +592,8 @@ function parseNotes(blocks) {
  * @param {Object} slide   - The JSON slide to parse to ODF.
  * @param {Stirng} [style] - Custom style suffix of the form "-sN" where N is
  *                           the slide number.
+ * @return {String} An ODF slide containing the blocks in the provided slide
+ *                  structure, of the default layout.
  */
 function parseDefaultSlide(slide, style = "") {
     const titleFrame = parseDefaultTitle(slide, style);
@@ -600,15 +602,45 @@ function parseDefaultSlide(slide, style = "") {
     return titleFrame + contentFrame;
 }
 
+/**
+ * Parses a JSON slide structure to an ODF slide with the title layout.
+ * This layout contains a title and a subtitle.
+ *
+ * @param {Object} slide   - The JSON slide to parse to ODF.
+ * @param {Stirng} [style] - Custom style suffix of the form "-sN" where N is
+ *                           the slide number.
+ * @return {String} An ODF slide containing the blocks in the provided slide
+ *                  structure, of the title layout.
+ */
 function parseTitleSlide(slide, style="") {
     return "";
 }
 
+/**
+ * Parses a JSON slide structure to an ODF slide with the section layout.
+ * This layout contains a title only.
+ *
+ * @param {Object} slide   - The JSON slide to parse to ODF.
+ * @param {Stirng} [style] - Custom style suffix of the form "-sN" where N is
+ *                           the slide number.
+ * @return {String} An ODF slide containing the blocks in the provided slide
+ *                  structure, of the section layout.
+ */
 function parseSectionSlide(slide, style="") {
     return "";
 }
 
 
+/**
+ * Generates an agenda based on the titles of all (non-draft) slides in the
+ * deck model.
+ * Blocks contained within this slide are ignored.
+ *
+ * @param {Object} model   - The model being parsed to ODF, from which each
+ *                           slide's title will be listed in the agenda.
+ * @param {String} [style] - Custom style suffix of the form "-sN" where N is
+ *                           the slide number.
+ */
 function generateAgenda(model, style="") {
     return "";
 }
