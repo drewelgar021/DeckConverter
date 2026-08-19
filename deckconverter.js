@@ -131,7 +131,10 @@ function takeWhile(predicate, array) {
 }
 
 
-const toKebabCase = (str) => str.toLowerCase().replaceAll(' ', '-');
+const escape = (text) => text.replaceAll("&", "&amp;")
+                             .replaceAll("<", "&lt;")
+                             .replaceAll(">", "&gt;")
+                             .replaceAll("\"", "&quot;");
 
 
 /**
@@ -169,11 +172,6 @@ function getContent(blocks) {
     return blocks.filter((block) => block.kind != "directive");
 }
 
-const escape = (text) => text.replaceAll("&", "&amp;")
-                             .replaceAll("<", "&lt;")
-                             .replaceAll(">", "&gt;")
-                             .replaceAll("\"", "&quot;");
-
 
 /**
  * Converts an array of blocks into an array of slides.
@@ -182,7 +180,7 @@ const escape = (text) => text.replaceAll("&", "&amp;")
  * directives, and a content property.
  * Draft slides are excluded from the return.
  *
- * @param {Object[]} blocks - Array of JSON blocks parsed from a PresentMD
+ * @param {Object[]} blocks  - Array of JSON blocks parsed from a PresentMD
  *                            document.
  * @param {Object[]} [acc]   - Array of already accumulated slides to append to.
  *
@@ -541,7 +539,6 @@ function parseDefaultTitle(slide, customStyle="") {
     }
 
     return "";
-
 }
 
 
@@ -816,5 +813,4 @@ if (stats.isFile()) {
 
     console.log(`\n${successes}` + SUCCESS_MSG);
     console.log(`${files.length - successes}` + FAILURE_MSG);
-
 }
