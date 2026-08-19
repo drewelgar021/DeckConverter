@@ -602,11 +602,11 @@ function parseSlide(slide, slideNo) {
 
     const notes = parseNotes(notesBlocks);
 
-    const slideStyle = slide.backgroundColor ? `-s${slide.slideNo}` : "";
+    const slideStyle = slide.backgroundColor ? `-s${slideNo}` : "";
 
     const open =
 `   <draw:page draw:name=\"${slideName}\" draw:master-page-name=\"Default\"
-            draw:style-name=\"dp-slide\">\n`;
+            draw:style-name=\"dp-slide${slideStyle}\">\n`;
 
     return open + titleFrame + contentFrame + notes + SLIDE_CLOSE;
 }
