@@ -602,6 +602,73 @@ function parseDefaultSlide(slide, style = "") {
     return titleFrame + contentFrame;
 }
 
+
+/**
+ * Obtains the ODF subtitle frame from a JSON slide structure, for a title
+ * slide.
+ *
+ * @param {Object} slide         - The slide being parsed to ODF.
+ * @param {String} [customStyle] - A custom style suffix of form "-sX" where X
+ *                                 is the slide number, to use custom font and
+ *                                 background colours
+ *
+ * @return {String} The ODF subtitle frame from the slide provided.
+ */
+function parseSubtitle(slide, customStyle="") {
+    const open = 
+`        <draw:frame presentation:class=\"outline\" draw:style-name=\"pr-frame\"
+                svg:x=\"1.4cm\" svg:y=\"9cm\"
+                svg:width=\"22.6cm\" svg:height=\"4cm\">
+            <draw:text-box>\n`;
+    const close = 
+`            </draw:text-box>
+        </draw:frame>\n`;
+    const content = slide.content
+        .filter((block) => !(block.kind == "heading"
+                && (block.level == 1 || block.level == 2))) 
+        .map((block) => parseBlock(block, customStyle)).join("");
+
+    return open + content + close;
+}
+
+
+/**
+ * Obtains the ODF title frame from a JSON slide structure, for a title slide
+ * layout.
+ * The title is the first level 1 or 2 heading in the slide.
+ *
+ * @param {Object} slide - The slide being parsed to ODF.
+ * @param {String} [customStyle] - A custom style suffix of form "-sX" where X
+ *                                 is the slide number, to use custom font and
+ *                                 background colours.
+ *
+ * @param {String} The ODF title frame from the slide provided.
+ */
+function parseTitleTitle(slide, customStyle="") {
+    const open = 
+`        <draw:frame presentation:class=\"title\" draw:style-name=\"pr-frame\"
+                svg:x=\"1.4cm\" svg:y=\"5.0cm\"
+                svg:width=\"22.6cm\" svg:height=\"2.5cm\">
+            <draw:text-box>\n`
+
+    const close =
+`            </draw:text-box>
+        </draw:frame>\n`;
+
+    // I am going to assume that there is one title and there will be no
+    // problem.
+    const titleBlock = slide.content
+        .filter((block) => block.kind == "heading"
+            && (block.level == "1" || block.level == "2"))[0];
+
+    if (titleBlock) {
+        return open + parseBlock(titleBlock, customStyle) + close;
+    }
+
+    return "";
+}
+
+
 /**
  * Parses a JSON slide structure to an ODF slide with the title layout.
  * This layout contains a title and a subtitle.
@@ -613,7 +680,11 @@ function parseDefaultSlide(slide, style = "") {
  *                  structure, of the title layout.
  */
 function parseTitleSlide(slide, style="") {
-    return "";
+
+    const titleFrame = parseTitleTitle(slide, style);
+    const subtitleFrame = parseSubtitle(slide, style);
+
+    return titleFrame + subtitleFrame;
 }
 
 /**
