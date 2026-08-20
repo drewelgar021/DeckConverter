@@ -655,8 +655,6 @@ function parseTitleTitle(slide, customStyle="") {
 `            </draw:text-box>
         </draw:frame>\n`;
 
-    // I am going to assume that there is one title and there will be no
-    // problem.
     const titleBlock = slide.content
         .filter((block) => block.kind == "heading"
             && (block.level == "1" || block.level == "2"))[0];
@@ -687,6 +685,7 @@ function parseTitleSlide(slide, style="") {
     return titleFrame + subtitleFrame;
 }
 
+
 /**
  * Parses a JSON slide structure to an ODF slide with the section layout.
  * This layout contains a title only.
@@ -698,6 +697,24 @@ function parseTitleSlide(slide, style="") {
  *                  structure, of the section layout.
  */
 function parseSectionSlide(slide, style="") {
+    const open = 
+`        <draw:frame presentation:class=\"title\" draw:style-name=\"pr-frame\"
+                svg:x=\"2.5cm\" svg:y=\"5.4cm\"
+                svg:width=\"20.4cm\" svg:height=\"3.5cm\">
+            <draw:text-box>\n`
+
+    const close =
+`            </draw:text-box>
+        </draw:frame>\n`;
+
+    const titleBlock = slide.content
+        .filter((block) => block.kind == "heading"
+            && (block.level == "1" || block.level == "2"))[0];
+
+    if (titleBlock) {
+        return open + parseBlock(titleBlock, style) + close;
+    }
+
     return "";
 }
 
