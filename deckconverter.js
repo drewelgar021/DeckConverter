@@ -719,6 +719,22 @@ function parseSectionSlide(slide, style="") {
 }
 
 
+function getRawTitle(slide) {
+    const firstHeading = slide.content
+        .filter((block) => block.kind == "heading"
+                && (block.level == 1 || block.level == 2))[0];
+
+    const ignoreInlineFormatting = (run) => {
+        if (run.type == "text") return run.value;
+        return run.runs.map(ignoreInlineFormatting).join("");
+    }
+    if (firstHeading) {
+        return firstHeading.runs.map(ignoreInlineFormatting).join("");
+    }
+    return null;
+
+}
+
 /**
  * Generates an agenda based on the titles of all (non-draft) slides in the
  * deck model.
@@ -730,7 +746,44 @@ function parseSectionSlide(slide, style="") {
  *                           the slide number.
  */
 function generateAgenda(model, style="") {
-    return "";
+
+    const titleBlock = {
+        kind: "heading",
+        level: 1,
+        runs: [ { type: "text", value: "Agenda" } ]
+    };
+
+    const titleFrame = 
+`        <draw:frame presentation:class=\"title\" draw:style-name=\"pr-frame\"
+                svg:x=\"1.4cm\" svg:y=\"0.9cm\"
+                svg:width=\"22.6cm\" svg:height=\"2.5cm\">
+            <draw:text-box>
+${parseBlock(titleBlock)}
+            </draw:text-box>
+        </draw:frame>\n`;
+
+    const slides = model.slides.filter((slide) => !(slide.agenda === null));
+    const titles = slides.map(getRawTitle).filter((title) => title !== null);
+    const open = 
+`        <draw:frame presentation:class=\"outline\" draw:style-name=\"pr-frame\"
+                svg:x=\"1.4cm\" svg:y=\"3.9cm\"
+                svg:width=\"22.6cm\" svg:height=\"9.2cm\">
+            <draw:text-box>
+                <text:list text:style-name=\"l-bullets${style}\">`;
+    const close = 
+`               </text:list>
+            </draw:text-box>
+        </draw:frame>\n`;
+
+    const titleList = titles.map((title) => 
+`                  <text:list-item>
+                        <text:p text:style-name=\"p-body${style}\">
+                            ${title}
+                        </text:p>
+                    </text:list-item>\n`
+    ).join("");
+    
+    return titleFrame + open + titleList + close;
 }
 
 
