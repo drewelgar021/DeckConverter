@@ -246,52 +246,6 @@ function toModel(blocks) {
  * backgroundColor directives.
  */
 function createCustomStyles(slide, slideNo) {
-    const colorStyle = slide.color ?
-`
-    <style:style style:name=\"p-title-s${slideNo}\" style:family=\"paragraph\">
-        <style:text-properties fo:font-size=\"40pt\" fo:font-weight=\"bold\"
-                fo:color=\"${slide.color}\"/>
-    </style:style>
-
-    <style:style style:name=\"p-body-s${slideNo}\" style:family=\"paragraph\">
-        <style:text-properties fo:color=\"${slide.color}\"/>
-    </style:style>
-
-    <style:style style:name=\"p-subhead-s${slideNo}\"
-            style:family=\"paragraph\">
-        <style:text-properties fo:font-size=\"22pt\" fo:font-weight=\"bold\"
-                fo:color=\"${slide.color}\"/>
-    </style:style>
-
-    <style:style style:name=\"p-quote-s${slideNo}\" style:family=\"paragraph\">
-        <style:text-properties fo:font-style=\"italic\"
-                fo:color=\"${slide.color}\"/>
-        <style:paragraph-properties fo:margin-left=\"0.5cm\"/>
-    </style:style>
-    <text:list-style style:name=\"l-bullets-s${slideNo}\">
-        <text:list-level-style-bullet text:level=\"1\" text:bullet-char=\"•\">
-            <text:list-level-properties text:space-before=\"0cm\"
-                    text:min-label-width=\"0.7cm\"/>
-            <style:text-properties fo:color=\"${slide.color}\"/>
-        </text:list-level-style-bullet>
-
-        <text:list-level-style-bullet text:level=\"2\" text:bullet-char=\"-\">
-            <style:list-level-properties text:space-before=\"0.9cm\"
-                    text:min-label-width=\"0.7cm\"/>
-            <style:text-properties fo:color=\"${slide.color}\"/>
-        </text:list-level-style-bullet>
-    </text:list-style>
-
-    <text:list-style style:name=\"l-numbered-s${slideNo}\">
-        <text:list-level-style-number text:level=\"1\" style:num-format=\"1\"
-                style:num-suffix=\".\">
-            <style:list-level-properties text:space-before=\"0cm\"
-                    text:min-label-width=\"0.7cm\"/>
-            <style:text-properties fo:color=\"${slide.color}\"/>
-        </text:list-level-style-number>
-    </text:list-style>\n`
-        : "";
-
     const backgroundColorStyle = slide.backgroundColor ?
 `    <style:style style:name=\"dp-slide-s${slideNo}\"
             style:family=\"drawing-page\">
@@ -302,7 +256,7 @@ function createCustomStyles(slide, slideNo) {
     </style:style>\n`
         : "";
 
-    return colorStyle + backgroundColorStyle;
+    return backgroundColorStyle;
 }
 
 
@@ -412,7 +366,7 @@ function parseStyles(model) {
  *
  * @return {String} The parsed ODF slide content.
  */
-function parseBlock(block, customStyle="") {
+function parseBlock(block) {
     if (block.type == "text") {
         // Substitute footnotes
         if (block.value.match(/\[\^[0-9]*\]/)) {
@@ -425,7 +379,7 @@ function parseBlock(block, customStyle="") {
     if (block.kind == "heading") {
         if (block.level == 1 || block.level == 2) {
             const open = 
-`                <text:p text:style-name=\"p-title${customStyle}\">`
+`                <text:p text:style-name=\"p-title\">`
             const close = "</text:p>\n"
             return open
                 + block.runs.map(parseBlock).join("")
@@ -433,7 +387,7 @@ function parseBlock(block, customStyle="") {
         }
         if (block.level == 3) {
             const open =
-`                <text:p text:style-name=\"p-subhead${customStyle}\">`;
+`                <text:p text:style-name=\"p-subhead\">`;
             const close = "</text:p>\n";
             return open
                 + block.runs.map(parseBlock).join("")
@@ -442,7 +396,7 @@ function parseBlock(block, customStyle="") {
     }
     if (block.kind == "paragraph") {
         const open =
-`                <text:p text:style-name=\"p-body${customStyle}\">`;
+`                <text:p text:style-name=\"p-body\">`;
         const close = "</text:p>\n"
 
         return open + block.runs.map(parseBlock).join("") + close;
@@ -450,15 +404,15 @@ function parseBlock(block, customStyle="") {
     
     if (block.kind == "quote") {
         const open =
-`                <text:p text:style-name=\"p-quote${customStyle}\">`;
+`                <text:p text:style-name=\"p-quote\">`;
         const close = "</text:p>\n";
         return open + block.runs.map(parseBlock).join("") + close;
     }
 
     if (block.kind == "list") {
         const style = block.ordered ?
-            `l-numbered${customStyle}` : `l-bullets${customStyle}`;
-        const open = `            <text:list text:style-name=\"${style}\">\n`;
+            `l-numbered` : `l-bullets`;
+        const open = `            <text:list text:style-name=\"\">\n`;
         const close = "        </text:list>\n";
 
         const items = block.items.map((item) => {
@@ -535,7 +489,7 @@ function parseDefaultTitle(slide, customStyle="") {
             && (block.level == "1" || block.level == "2"))[0];
 
     if (titleBlock) {
-        return open + parseBlock(titleBlock, customStyle) + close;
+        return open + parseBlock(titleBlock) + close;
     }
 
     return "";
@@ -564,7 +518,7 @@ function parseDefaultContent(slide, customStyle="") {
     const content = slide.content
         .filter((block) => !(block.kind == "heading"
                 && (block.level == 1 || block.level == 2))) 
-        .map((block) => parseBlock(block, customStyle)).join("");
+        .map((block) => parseBlock(block)).join("");
 
     return open + content + close;
 }
@@ -626,7 +580,7 @@ function parseSubtitle(slide, customStyle="") {
     const content = slide.content
         .filter((block) => !(block.kind == "heading"
                 && (block.level == 1 || block.level == 2))) 
-        .map((block) => parseBlock(block, customStyle)).join("");
+        .map((block) => parseBlock(block)).join("");
 
     return open + content + close;
 }
@@ -660,7 +614,7 @@ function parseTitleTitle(slide, customStyle="") {
             && (block.level == "1" || block.level == "2"))[0];
 
     if (titleBlock) {
-        return open + parseBlock(titleBlock, customStyle) + close;
+        return open + parseBlock(titleBlock) + close;
     }
 
     return "";
@@ -712,7 +666,7 @@ function parseSectionSlide(slide, style="") {
             && (block.level == "1" || block.level == "2"))[0];
 
     if (titleBlock) {
-        return open + parseBlock(titleBlock, style) + close;
+        return open + parseBlock(titleBlock) + close;
     }
 
     return "";
@@ -745,7 +699,7 @@ function getRawTitle(slide) {
  * @param {String} [style] - Custom style suffix of the form "-sN" where N is
  *                           the slide number.
  */
-function generateAgenda(model, style="") {
+function generateAgenda(model) {
 
     const titleBlock = {
         kind: "heading",
@@ -769,7 +723,7 @@ ${parseBlock(titleBlock)}
                 svg:x=\"1.4cm\" svg:y=\"3.9cm\"
                 svg:width=\"22.6cm\" svg:height=\"9.2cm\">
             <draw:text-box>
-                <text:list text:style-name=\"l-bullets${style}\">`;
+                <text:list text:style-name=\"l-bullets\">`;
     const close = 
 `               </text:list>
             </draw:text-box>
@@ -777,7 +731,7 @@ ${parseBlock(titleBlock)}
 
     const titleList = titles.map((title) => 
 `                  <text:list-item>
-                        <text:p text:style-name=\"p-body${style}\">
+                        <text:p text:style-name=\"p-body\">
                             ${title}
                         </text:p>
                     </text:list-item>\n`
