@@ -410,6 +410,10 @@ function parseBlock(block) {
                 + block.runs.map(parseBlock).join("")
                 + close;
         }
+        if (block.level < 1 || block.level > 3) {
+            return `<text:p text:style-name=\"p-body\">
+    [Unsupported: heading level ${block.level} omitted]\n</text:p>\n`
+        }
     }
     if (block.kind == "paragraph") {
         const open =
