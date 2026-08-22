@@ -18,8 +18,8 @@ Content **bold** _italic_ ~~struck~~
 
 - list
 - another list item
-    - a nested item
-    - another one
+  - a nested item
+  - another one
 
 This string < " needs to be & escaped >
 
