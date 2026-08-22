@@ -4,6 +4,7 @@
   "description": "",
   "main": "presentMDparser.js",
   "scripts": {
+    "test": "jest",
     "small": "node deckconverter.js small.md out --model",
     "all": "node deckconverter.js in out"
   },
@@ -17,8 +18,7 @@
     "url": "https://github.com/drewelgar021/PresentMD/issues"
   },
   "homepage": "https://github.com/drewelgar021/PresentMD#readme",
-  "dependencies": {
-    "file-type": "^16.5.4",
-    "mime": "^3.0.0"
+  "devDependencies": {
+    "jest": "^30.4.2"
   }
 }
