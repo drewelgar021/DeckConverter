@@ -159,17 +159,29 @@ function getDirectives(blocks) {
     return directives;
 }
 
+VALID_DIRECTIVES = ["draft", "agenda", "backgroundColor", "layout"];
 
 /**
  * Extracts blocks from a provided array that relate to slide content.
+ * Only directive blocks that have valid keys are removed; invalid directives
+ * are kept so that they can be detected for error handling.
  *
  * @param {Object[]} blocks - The array to extract slide content blocks from.
  *
- * @return {Object[]} An array containing only slide content-related blocks
- *                    derived from the provided array of blocks.
+ * @return {Object[]} An array containing only slide content-related blocks (and
+ *                    invalid directives) derived from the provided array of
+ *                    blocks.
  */
 function getContent(blocks) {
-    return blocks.filter((block) => block.kind != "directive");
+    return blocks.filter(
+        (block) => {
+            if (block.kind == "directive"
+                    && VALID_DIRECTIVES.includes(block.key)) {
+                return false;
+            }
+            return true;
+        }
+    );
 }
 
 
@@ -367,6 +379,11 @@ function parseStyles(model) {
  * @return {String} The parsed ODF slide content.
  */
 function parseBlock(block) {
+    if (block.kind == "directive") {
+        // Substitute with error.
+        return `<text:p text:style-name=\"p-body\">
+    [Invalid directive key: ${block.key}]\n</text:p>\n`
+    }
     if (block.type == "text") {
         // Substitute footnotes
         if (block.value.match(/\[\^[0-9]*\]/)) {
