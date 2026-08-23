@@ -383,8 +383,10 @@ function parseBlock(block) {
     // It looks very ugly, I know.
     if (block.kind == "directive") {
         // Substitute with error.
-        return `<text:p text:style-name=\"p-body\">
-    [Invalid directive key: ${block.key}]\n</text:p>\n`
+        return `
+                <text:p text:style-name=\"p-body\">
+                    [Invalid directive key: ${block.key}]
+                </text:p>\n`
     }
     if (block.type == "text") {
         // Substitute footnotes
@@ -1002,4 +1004,4 @@ function main() {
 
 main();
 
-module.exports = { parseBlock };
+module.exports = { parseBlock, getDirectives };
