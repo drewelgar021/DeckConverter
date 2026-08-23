@@ -2,6 +2,8 @@
 
 <!-- layout: "value" -->
 
+<!-- agenda -->
+
 <!-- color: "value" -->
 
 <!-- invalid: "value" -->

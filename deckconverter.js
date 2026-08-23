@@ -379,6 +379,8 @@ function parseStyles(model) {
  * @return {String} The parsed ODF slide content.
  */
 function parseBlock(block) {
+    // XML is indented so I can read the output file.
+    // It looks very ugly, I know.
     if (block.kind == "directive") {
         // Substitute with error.
         return `<text:p text:style-name=\"p-body\">
@@ -401,16 +403,14 @@ function parseBlock(block) {
             return open
                 + block.runs.map(parseBlock).join("")
                 + close;
-        }
-        if (block.level == 3) {
+        } else if (block.level == 3) {
             const open =
 `                <text:p text:style-name=\"p-subhead\">`;
             const close = "</text:p>\n";
             return open
                 + block.runs.map(parseBlock).join("")
                 + close;
-        }
-        if (block.level < 1 || block.level > 3) {
+        } else {
             return `<text:p text:style-name=\"p-body\">
     [Unsupported: heading level ${block.level} omitted]\n</text:p>\n`
         }
@@ -1001,3 +1001,5 @@ function main() {
 }
 
 main();
+
+module.exports = { parseBlock };
