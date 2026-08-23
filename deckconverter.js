@@ -999,3 +999,5 @@ function main() {
         console.log(`${files.length - successes}` + FAILURE_MSG);
     }
 }
+
+main();
