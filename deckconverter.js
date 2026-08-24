@@ -83,6 +83,8 @@ const META_OPEN =
     <meta:generator>deckconverter</meta:generator>\n`;
 const META_CLOSE = "</office:meta>\n";
 
+VALID_DIRECTIVES = ["draft", "agenda", "backgroundColor", "layout"];
+
 /**
  * Checks if the provided file path points to a valid UTF-8 encoded file.
  * 
@@ -127,7 +129,31 @@ function takeWhile(predicate, array) {
         return [];
     }
 
-        return [array[0]].concat(takeWhile(predicate, array.slice(1)));
+    return [array[0]].concat(takeWhile(predicate, array.slice(1)));
+}
+
+/**
+ * Returns a new array where the lowest-indexed element from the original for
+ * which a predicate returns true is removed.
+ *
+ * @param {(T) => boolean} predicate - The first element for which this returns
+ *                                     true will be excluded from the returned
+ *                                     array
+ * @param {T[]} array                - The input array.
+ *
+ * @return {T[]} A new array where the first element for which the predicate is
+ *               true is excluded.
+ */
+function removeFirst(predicate, array) {
+    if (array == undefined || array.length == 0) {
+        return [];
+    }
+
+    if (predicate(array[0])) {
+        return array.slice(1);
+    }
+
+    return [array[0]].concat(removeFirst(predicate, array.slice(1)));
 }
 
 
@@ -159,7 +185,6 @@ function getDirectives(blocks) {
     return directives;
 }
 
-VALID_DIRECTIVES = ["draft", "agenda", "backgroundColor", "layout"];
 
 /**
  * Extracts blocks from a provided array that relate to slide content.
@@ -538,9 +563,12 @@ function parseDefaultContent(slide, customStyle="") {
     const close = 
 `            </draw:text-box>
         </draw:frame>\n`;
-    const content = slide.content
-        .filter((block) => !(block.kind == "heading"
-                && (block.level == 1 || block.level == 2))) 
+
+    const removeFirstHeading = removeFirst(
+        (block) => block.kind == "heading"
+            && (block.level == 1 || block.level == 2),
+        slide.content);
+    const content = removeFirstHeading
         .map((block) => parseBlock(block)).join("");
 
     return open + content + close;

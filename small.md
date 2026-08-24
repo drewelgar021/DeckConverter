@@ -12,7 +12,9 @@ By Drewza
 
 ---
 
-## Slide 1
+# Slide 1
+
+# another title
 
 Content **bold** _italic_ ~~struck~~
 
