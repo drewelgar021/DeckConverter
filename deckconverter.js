@@ -3,8 +3,8 @@
  * @author Drew Elgar
  */
 
-const childProcess = require("child_process");
 const fs = require("fs");
+const { parsePresentMD } = require("./presentMDparser.js");
 
 const PARSER_PATH = "./presentMDparser.js";
 
@@ -876,9 +876,9 @@ function toODF(model) {
  * the intermediate JSON model conversion, for a single file.
  * If a deck fails to convert, then a message will be printed to stderr.
  * If a deck successfully converts, then a Flat ODP file will be output to
- * the output directory defined in `main()`.
- * If the `--model` flag is set in `main()`, then the intermediate JSON
- * model will also be written to a file in the same output directory.
+ * outputDir.
+ * If outputModel == true, then the intermediate JSON model will also be
+ * written to a file in the same output directory.
  * 
  * @param {String} path           - The relative path of the file to process.
  * @param {String} outputDir      - The relative path of the directory to store
@@ -892,9 +892,8 @@ function processFile(path, outputDir, outputModel = false) {
         console.error(path + NOT_PLAIN_TEXT_ERROR_MSG);
         return 0;
     }
-    const parsedDeck = JSON.parse(
-        childProcess.execFileSync(process.execPath, [PARSER_PATH, path])
-    );
+    const deck = fs.readFileSync(path, { encoding: "utf8", flag: "r" });
+    const parsedDeck = parsePresentMD(deck);
 
     if (parsedDeck.blocks.length == 0) {
         console.error(path + EMPTY_DECK_ERROR_MSG);
