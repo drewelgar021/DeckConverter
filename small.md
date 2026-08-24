@@ -23,6 +23,9 @@ Content **bold** _italic_ ~~struck~~
   - a nested item
   - another one
 
+1. one
+2. two
+
 This string < " needs to be & escaped >
 
 > quote cunt

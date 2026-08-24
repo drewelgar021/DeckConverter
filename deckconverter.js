@@ -436,7 +436,7 @@ function parseBlock(block) {
         const style = block.ordered ?
             `l-numbered` : `l-bullets`;
         const open = `            <text:list text:style-name=\"${style}\">\n`;
-        const close = "        </text:list>\n";
+        const close = "            </text:list>\n";
 
         const items = block.items.map((item) => {
             const open = "                "

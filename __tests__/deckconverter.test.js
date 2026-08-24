@@ -113,6 +113,26 @@ const LIST = `
 
 function listTest() {
     const blocks = parsePresentMD(LIST).blocks;
+    expect(blocks.length).toBe(2);
+
+    expect((parseBlock(blocks[0]))).toBe(
+`            <text:list text:style-name=\"l-bullets\">
+                <text:list-item><text:p text:style-name=\"p-body\">l1</text:p></text:list-item>
+                <text:list-item><text:p text:style-name=\"p-body\">l1</text:p><text:list>
+                <text:list-item><text:p text:style-name=\"p-body\">l2</text:p></text:list-item>
+                <text:list-item><text:p text:style-name=\"p-body\">l2</text:p></text:list-item>
+</text:list>
+</text:list-item>
+            </text:list>
+`
+    );
+    expect((parseBlock(blocks[1]))).toBe(
+`            <text:list text:style-name=\"l-numbered\">
+                <text:list-item><text:p text:style-name=\"p-body\">one</text:p></text:list-item>
+                <text:list-item><text:p text:style-name=\"p-body\">two</text:p></text:list-item>
+            </text:list>
+`
+    );
     
 }
 
@@ -131,3 +151,6 @@ test("Bold, italicised, and struck text render within paragraphs.",
     inlineFormattingTest);
 
 test("Quotes have correct \"p-quote\" style.", quoteTest);
+
+test("Lists have correct styling and indenting creates lower list levels.",
+    listTest);
