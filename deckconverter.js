@@ -397,9 +397,6 @@ function parseStyles(model) {
  * @param {Object} block         - A single block to parse, which may
  *                                 recursively contain more blocks in its `runs`
  *                                 array.
- * @param {String} [customStyle] - A custom style suffix of form "-sN" where N
- *                                 is the slide number, to use custom font and
- *                                 background colours.
  *
  * @return {String} The parsed ODF slide content.
  */
@@ -513,13 +510,10 @@ function parseBlock(block) {
  * The title is the first level 1 or 2 heading in the slide.
  *
  * @param {Object} slide - The slide being parsed to ODF.
- * @param {String} [customStyle] - A custom style suffix of form "-sX" where X
- *                                 is the slide number, to use custom font and
- *                                 background colours.
  *
  * @param {String} The ODF title frame from the slide provided.
  */
-function parseDefaultTitle(slide, customStyle="") {
+function parseDefaultTitle(slide) {
     const open = 
 `        <draw:frame presentation:class=\"title\" draw:style-name=\"pr-frame\"
                 svg:x=\"1.4cm\" svg:y=\"0.9cm\"
@@ -548,13 +542,10 @@ function parseDefaultTitle(slide, customStyle="") {
  * Obtains the ODF content frame from a JSON slide structure.
  *
  * @param {Object} slide         - The slide being parsed to ODF.
- * @param {String} [customStyle] - A custom style suffix of form "-sX" where X
- *                                 is the slide number, to use custom font and
- *                                 background colours
  *
  * @return {String} The ODF content frame from the slide provided.
  */
-function parseDefaultContent(slide, customStyle="") {
+function parseDefaultContent(slide) {
     const open = 
 `        <draw:frame presentation:class=\"outline\" draw:style-name=\"pr-frame\"
                 svg:x=\"1.4cm\" svg:y=\"3.9cm\"
@@ -613,13 +604,10 @@ function parseDefaultSlide(slide, style = "") {
  * slide.
  *
  * @param {Object} slide         - The slide being parsed to ODF.
- * @param {String} [customStyle] - A custom style suffix of form "-sX" where X
- *                                 is the slide number, to use custom font and
- *                                 background colours
  *
  * @return {String} The ODF subtitle frame from the slide provided.
  */
-function parseSubtitle(slide, customStyle="") {
+function parseSubtitle(slide) {
     const open = 
 `        <draw:frame presentation:class=\"outline\" draw:style-name=\"pr-frame\"
                 svg:x=\"1.4cm\" svg:y=\"9cm\"
@@ -643,13 +631,10 @@ function parseSubtitle(slide, customStyle="") {
  * The title is the first level 1 or 2 heading in the slide.
  *
  * @param {Object} slide - The slide being parsed to ODF.
- * @param {String} [customStyle] - A custom style suffix of form "-sX" where X
- *                                 is the slide number, to use custom font and
- *                                 background colours.
  *
  * @param {String} The ODF title frame from the slide provided.
  */
-function parseTitleTitle(slide, customStyle="") {
+function parseTitleTitle(slide) {
     const open = 
 `        <draw:frame presentation:class=\"title\" draw:style-name=\"pr-frame\"
                 svg:x=\"1.4cm\" svg:y=\"5.0cm\"
