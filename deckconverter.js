@@ -944,7 +944,6 @@ function main() {
         console.error(USAGE_ERROR_MSG);
         return;
     }
-
     if (process.argv.length == 5 && process.argv[4] != "--model") {
         console.error(USAGE_ERROR_MSG);
         return;
@@ -1002,6 +1001,8 @@ function main() {
     }
 }
 
-main();
+if (process.env.NODE_ENV != "test") {
+    main();
+}
 
 module.exports = { parseBlock, getDirectives };
