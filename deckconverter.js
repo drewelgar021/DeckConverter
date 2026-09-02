@@ -876,7 +876,7 @@ function parseMeta(model) {
  *
  * @return {String} An ODF tree representation of the JSON model.
  */
-function toODF(model) {
+export function toODF(model) {
     const styles = parseStyles(model);
     const body = parseBody(model);
     const meta = parseMeta(model);
